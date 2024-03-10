@@ -1,0 +1,3 @@
+<div class="ka4wp_placeholder">
+This page is only a placeholder.
+</div>
