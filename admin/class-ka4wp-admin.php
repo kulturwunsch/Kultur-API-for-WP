@@ -75,9 +75,10 @@ class KA4WP_Admin {
 		$data = array(
 	        'site_url' => site_url(),
 	        'ajax_url' => admin_url('admin-ajax.php'),
+	        'nonce' => wp_create_nonce('ka4wp-ajax-nonce'),
 	    );
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-admin.js', array( 'jquery' ), $this->version, false );
-		#wp_localize_script($this->plugin_name, 'ajax_object', $data);
+		wp_localize_script($this->ka4wp, 'ajax_object', $data);
 	}
 	
 	/**
@@ -99,7 +100,7 @@ class KA4WP_Admin {
 		
 		if(!empty($newValue['api_receive_eventcategories']) && $newValue['api_receive_eventcategories'] != "-1" && empty(wp_next_scheduled('ka4wp_cron_api_update_eventcategories')))
 		{
-			$nr = wp_schedule_event(time(), $newValue['ka4wp_cron_api_update_eventcategories_recurrence'] ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
+			$nr = wp_schedule_event(time(), $newValue['api_receive_eventcategories_recurrence'] ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
 			
 			if(is_bool($nr) && $nr == true) { 
 				error_log( 'Next run planned: '.wp_next_scheduled('ka4wp_cron_api_update_eventcategories')); 
@@ -655,7 +656,6 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_settings_render_miscellaneous() {
 		
-		#$options = get_option( 'my_option_1' );
 		$options = get_option( 'ka4wp_settings_miscellaneous' );
 		$field = $options['my_option_1'];
 		echo "<input id='miscellaneous-settings-field' name='ka4wp_settings_miscellaneous[my_option_1]' type='text' value='" . esc_attr( $field ) . "' />";
@@ -748,10 +748,10 @@ class KA4WP_Admin {
 				switch($_POST['ka4wp_api_type'])
 				{
 					default:
-						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: 'error';
+						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: 'error'; #TODO: Anpassen
 					break;
 					case 'wunsch.events':
-						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: 'fail';
+						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: 'fail'; #TODO: Anpassen
 					break;
 					case 'other':
 						$options['ka4wp_base_url'] = sanitize_url($_POST['ka4wp_base_url']);
@@ -784,7 +784,7 @@ class KA4WP_Admin {
 						update_post_meta($post_id, 'check_result_message', $response['body']);
 					} else {
 						update_post_meta($post_id, 'check_result', 0);
-						update_post_meta($post_id, 'check_result_message', $response['error']);
+						update_post_meta($post_id, 'check_result_message', !empty($response['error']) ? $response['error'] : $response['body']);
 					}
 					#add_action('admin_notices','filbr_invalid_id_error' );
 					#TODO: Fehlermeldung anzeigen wenn nicht erfolgreich
@@ -839,32 +839,32 @@ class KA4WP_Admin {
 			#add_filter('wpcf7_skip_mail', '__return_true');
 		}
 	}
+
 		
 	/**
 	 * Load WUNSCH.events default API values
 	 *
 	 * @since    1.0.0
 	 */
-	public static function ka4wp_api_options_wunschevents($api_action, $options) {
+	public static function ka4wp_api_options_wunschevents($api_action, $post_id) {
 		$api_options = array(
 				'url'     		=> in_array(wp_get_development_mode(), ['plugin', 'all']) ? 'https://api.testserver.wunschevents.de/v1' : 'https://api.wunsch.events/v1',
 				'input_type'	=> 'JSON',
 				'http_method'	=> 'GET',
 				'headers'		=> [],
-				#'basic_auth'	=> $options['ka4wp_basic_auth'], #TODO: Anpassen
-				'basic_auth'	=> 'WUNSCH.events-test',
+				#'basic_auth'	=> $defaultOptions['ka4wp_api_key'],
+				'basic_auth'	=> get_post_meta($post_id, 'ka4wp_api_key', true),
 			);
 			
 		switch($api_action)
 		{
 			default:
-				
-			break;
 			case 'check_api':
 				$api_options['url'] .= '/check';
 			break;
 			case 'load_eventcategories':
 				$api_options['url'] .= '/eventcategories/get';
+			break;
 			case 'load_impartingareas':
 				$api_options['url'] .= '/impartingareas/get';
 			break;
@@ -884,9 +884,7 @@ class KA4WP_Admin {
 		if('publish' !== get_post_status($post_id)){
 			return ['success' => false, 'error' => esc_html__('The selected API is not yet published.', 'kultur-api-for-wp')];
 		}
-		$post = get_post($post_id);
-		$options = get_post_meta($post->ID);
-		
+
 		//define default args
 		$args = array(
 				'timeout'     => 5,
@@ -905,23 +903,22 @@ class KA4WP_Admin {
 			);
 		
 		$api_options = [];
-		switch($options['ka4wp_api_type']) {
-			
-			case 'other':
-				$api_options['http_method'] = $options['ka4wp_http_method'] ?: 'POST';
-				$api_options['url'] = $options['ka4wp_url'] ?: '';				
-				$api_options['input_type'] = $options['ka4wp_input_type'] ?: '';				
-				$api_options['header_request'] = $options['ka4wp_header_request'] ?: '';				
-			break;
+		switch(get_post_meta($post_id, 'ka4wp_api_type', true)) {
 			default:
+			case 'other':
+				$api_options['http_method'] = get_post_meta($post_id, 'ka4wp_http_method', true) ?: 'POST';			
+				$api_options['url'] = get_post_meta($post_id, 'ka4wp_url', true) ?: '';							
+				$api_options['input_type'] = get_post_meta($post_id, 'ka4wp_input_type', true) ?: 'JSON';							
+				$api_options['header_request'] = json_decode(get_post_meta($post_id, 'ka4wp_api_type', true)) ?: [];				
+			break;
 			case 'wunsch.events':
-				$api_options = self::ka4wp_api_options_wunschevents($api_action, $options);
-				$args['headers'] = array_merge($args['headers'], $api_options['headers']);
+				$api_options = self::ka4wp_api_options_wunschevents($api_action, $post_id);
+				$api_options['header_request'] = array_merge($args['headers'], $api_options['headers']);
 			break;
 		}
 		
 		if(!empty($api_options['header_request'])){
-      		$args['headers'] = $header_request;
+      		$args['headers'] = $api_options['header_request'];
       	}
 		
 		if(!empty($api_options['basic_auth'])){

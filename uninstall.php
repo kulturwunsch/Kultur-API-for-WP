@@ -75,3 +75,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	{
 		wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
 	}
+	
+	//delete all custom posts
+	$pluginPosts = get_posts( array( 'post_type' => 'products', 'numberposts' => -1) );
+	foreach ( $pluginPosts as $singlePost ) {
+		#wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
+    } 

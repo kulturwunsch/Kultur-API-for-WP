@@ -69,22 +69,21 @@ If you have ideas or suggestions, please write them in the Issues section or cre
 
 **What we won't cover:**
 
-- How to setup a solution that fits your need. This is a basic demo to help you get started.
-- Understanding of MVC; including Controllers, Middlewares or ExceptionHandlers.
-- How to integrate into third party frameworks.
+- Develop your own software for the administration of the association
+- Creating your own interfaces to connect to the culture API
 
 **What we cover:**
 
-- How to get up and running fast - from scratch.
-- How to get ExceptionHandlers, Middlewares and Controllers working.
-- How to setup your webservers.
+- How to get up and running fast
+- Extend WordPress features for full culture integration
+- How to integrate your existing API into this plugin
 
 ## Requirements
 
 - PHP 7.4 or later
 - PHP JSON extension enabled.
 - PHP CURL extension enabled
-- WordPress 6.0 or later
+- WordPress 6.3 or later
 
 ## Features
 
@@ -94,10 +93,11 @@ If you have ideas or suggestions, please write them in the Issues section or cre
 - Contact Form 7 integration
 	- Deactivate email sending
 	- Transfer forms via API (New cultural guests and new organization members)
+	- Enhanced ressource loading only on necessary pages
 
 ## Installation
 
-Go to your plugin page. Then enter “Kultur-API for WP” in the search and click on install. Then you have installed the latest version of the plugin.
+Go to your plugin page. Then enter `Kultur-API for WP` in the search and click on install. Then you have installed the latest version of the plugin.
 
 > [!TIP]
 > We always recommend using the latest version from the WordPress marketplace, as this version is stable and has been checked for malfunctions.
@@ -106,7 +106,7 @@ ___
 
 # Contribute
 
-The development of this plugin is supervised and coordinated by Kulturwunsch Wolfenbüttel e.V. However, it is desirable that everyone can contribute to this plugin and contribute their ideas.
+The development of this plugin is supervised and coordinated by Kulturwunsch Wolfenbüttel e. V. However, it is desirable that everyone can contribute to this plugin and contribute their ideas.
 
 ## New functions
 
@@ -145,9 +145,9 @@ This plugin is designed for multilingualism. All texts that this plugin displays
 > [!IMPORTANT]
 > All original texts must be in english and the text must be assigned to text domain `kultur-api-for-wp`. A translation into another language (e.g. German) is then carried out via the developer platform.
 
-### Nutzung der Datenbank
+### Use of the database
 
-Beschreibung.
+This plugin currently does not use its own tables or database fields. If possible, all data should be written into existing standard fields. This increases maintainability and compatibility with later WordPress versions. If it is unavoidable to use existing tables and fields, the WordPress database functions must be used. In addition to the general WordPress table prefix, all tables must also have the `ka4wp_` prefix. **You also need to make sure that the tables are also removed when you uninstall the plugin.**
 
 ### WordPress standards
 
@@ -157,8 +157,8 @@ WordPress already offers functions for many possible actions in the core package
 
 Custom posttypes are used in this plugin. A custom posttype is a post that is created and managed by the plugin. WordPress uses custom posttypes to differentiate between pages, standard blog entries and posts created by plugins. The following table provides an overview of the custom posttypes used by this plugin:
 
-| Type               | Description                                                                                                                                               |
-|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Type               | Description                                                                                           |
+|--------------------|-------------------------------------------------------------------------------------------------------|
 | `ka4wp_api` 		 | This type stores all information about the created interfaces. In addition to the predefined WUNSCH.events api, individual interfaces can also be created.|
 
 
@@ -170,7 +170,7 @@ Custom posttypes are used in this plugin. A custom posttype is a post that is cr
 This plugin uses the Taxonomy function to store and provide standardized data. A new taxonomy can be created for each type of data and expanded with metadata. The following table shows which types currently exist and which fields have been expanded.
 
 | Slug               | Description                                             | Additional meta data                                  |
-|--------------------|--------------------------------------- -----------------|-------------------------------------------------------|
+|--------------------|---------------------------------------------------------|-------------------------------------------------------|
 | `eventcategories`  | Saves all event categories and a description of them    | api_managed, enabled, timestamp, shortcut, databse_id |
 | `impartingareas`   | Saves all imparting areas and a description of it       | api_managed, enabled, timestamp, databse_id           |
 
@@ -199,37 +199,47 @@ You can find more information about how form fields work [here](https://contactf
 
 In the settings of a form you can deactivate that an email is sent after it has been sent. This setting is related to selecting an API.
 
-### Corn jobs
+### Cron jobs
 
 Cron jobs can be generated in this plugin. Cron jobs are executed cyclically, depending on the system settings, and carry out actions. All cron jobs must be implemented in such a way that they are terminated and deleted when the plugin is deactivated or uninstalled. In addition, a check must be carried out when reactivating the plugin in order to reschedule any existing cron jobs.
 
 ### API Endpoints
 
+A description of all API Endpoints will coming soon.
+
 
 ### Test und Releases
 
+There a currently no guidelines for new releases. This part of the documentation will filled up after the initial release.
 
-### Dokumentation
+#### Debug logs
 
+If you want to track and check errors during development, a debug log can be helpful. This plugin includes a function for creating debug logs.
+
+```
+wp_get_development_mode(), ['plugin', 'all']
+```
+
+### Documentation
+
+The documentation of this plugin is an important part of the development. Within the plugin, all features are labeled with the version in which they were added and a brief description of what it does. New features must also contain this information. If there are fundamental changes or if new core functions are to be implemented, it is essential to adapt the README.md file.
 
 ### Changelog
 
 
-## Hilfe und Support
+## Help and support
 
-This section will go into details on how to debug the router and answer some of the commonly asked questions- and issues.
+In this area you will find help and common errors. Before reporting an error, please check whether it has already been reported.
 
-### Hinweise zur Fehlermeldung
-
-**Before reporting your issue, make sure that the issue you are experiencing aren't already answered in the [Common errors](#common-errors) section or by searching the [closed issues](https://github.com/skipperbent/simple-php-router/issues?q=is%3Aissue+is%3Aclosed) page on GitHub.**
+**Before reporting your issue, make sure that the issue you are experiencing aren't already answered by searching the [closed issues](https://github.com/kulturwunsch/Kultur-API-for-WP/issues?q=is%3Aissue+is%3Aclosed) page on GitHub.**
 
 To avoid confusion and to help you resolve your issue as quickly as possible, you should provide a detailed explanation of the problem you are experiencing.
 
 ### Procedure for reporting a new issue
 
-1. Go to [this page](https://github.com/skipperbent/simple-php-router/issues/new) to create a new issue.
+1. Go to [this page](https://github.com/kulturwunsch/Kultur-API-for-WP/issues/new) to create a new issue.
 2. Add a title that describes your problems in as few words as possible.
-3. Copy and paste the template below in the description of your issue and replace each step with your own information. If the step is not relevant for your issue you can delete it.
+3. Fill all provided fields to help us support you.
 
 Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
 
@@ -248,27 +258,3 @@ Remember that a more detailed issue- description and debug-info might suck to wr
 - When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ---
-
-
-
-
-## Credits
-
-######################
-
-### API ENDPOINTS
-
-#### custom
-
-#### wunshc.events
-
-#### implement your own
-
-
-### Default functions
-
-#### Verfügbarkeitsprüfung
-
-Es findet eine Prüfung statt welches APIs verfügbar sind
-
-

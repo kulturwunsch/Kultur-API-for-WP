@@ -12,7 +12,7 @@
  * @subpackage KA4WP/admin/partials
  */
 $ka4wp_object = new KA4WP();
-$ka4wp_options = $ka4wp_object->ka4wp_get_api_options($post->ID);
+$ka4wp_options = $ka4wp_object->ka4wp_get_api_options(get_the_ID());
 
 
 $ka4wp_api_type = (empty($ka4wp_options['ka4wp_api_type']) ? '' : $ka4wp_options['ka4wp_api_type']);

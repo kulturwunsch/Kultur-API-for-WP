@@ -5,7 +5,7 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @link       http://example.com
+ * @link       https://kulturwunsch.de
  * @since      1.0.0
  *
  * @package    KA4WP
@@ -28,15 +28,21 @@
 	
 	$wpcf7_api_data["send_to_api"] = isset($wpcf7_api_data["send_to_api"]) ? true : false;
 
+	//load API types
+	$ApiEndpointPosts = get_posts([
+		'post_type' => 'ka4wp',
+		'post_status' => 'publish',
+		'numberposts' => -1,
+		'order'    => 'ASC'
+	]);
+
 ?>	
 	<h2><?php esc_html_e('API Integration','kultur-api-for-wp'); ?></h2>
 	<fieldset>
-		<?php do_action('before_base_fields', $post); ?>
-
 		<div class="cf7_row">
 			<label for="wpcf7-sf-send_to_api">
 				<input type="checkbox" id="wpcf7-sf-send_to_api"
-					name="wpcf7-ka4wp[send_to_api]" value = "1" <?php checked(1, $wpcf7_api_data["send_to_api"]); ?>/>
+					name="wpcf7-ka4wp[send_to_api]" value = "1" <?php checked(1, $wpcf7_api_data["send_to_api"] ?? 0); ?>/>
 				<?php esc_html_e('Enable send to API','kultur-api-for-wp'); ?>
 			</label>
 			<p class="description"><?php esc_html_e('If enabled, you can configure the API and options for this form.','kultur-api-for-wp') ?></p>
@@ -45,7 +51,7 @@
 		<div class="cf7_row">
 			<label for="wpcf7-sf-stop_email">
 				<input type="checkbox" id="wpcf7-sf-stop_email"
-					name="wpcf7-ka4wp[stop_email]" value = "1" <?php echo checked(1, $wpcf7_api_data["stop_email"]); ?>/>
+					name="wpcf7-ka4wp[stop_email]" value = "1" <?php echo checked(1, $wpcf7_api_data["stop_email"] ?? 0); ?>/>
 				<?php esc_html_e('Skip sending emails','kultur-api-for-wp'); ?>
 			</label>
 			<p class="description"><?php esc_html_e('If enabled, emails will not be sent upon form submission.','kultur-api-for-wp') ?></p>
@@ -54,14 +60,33 @@
 		<div class="cf7_row">
 			<label for="wpcf7-sf-enable-logging">
 				<input type="checkbox" id="wpcf7-sf-enable-logging"
-					name="wpcf7-ka4wp[logging]" value = "1" <?php checked(1,$wpcf7_api_data["logging"]); ?>/>
+					name="wpcf7-ka4wp[logging]" value = "1" <?php checked(1,$wpcf7_api_data["logging"] ?? 0); ?>/>
 				<?php esc_html_e('Enable API logs','kultur-api-for-wp'); ?>
 			</label>
 			<p class="description"><?php esc_html_e('If enabled, submissions and API resultswill be logged.','kultur-api-for-wp') ?></p>
 		</div>
-
-		<?php do_action('after_base_fields', $post); ?>
 	</fieldset>
+	<div id="cf7-ka4wp-api-selection">
+		<h2><?php esc_html_e('API Endpoint selection','kultur-api-for-wp'); ?></h2>
+		<label><?php esc_html_e('Here you can select the specified API which should used to transfer the form entered data.','kultur-api-for-wp'); ?></label>
+		<fieldset>
+			<div class="cf7_row">
+				<label for="wpcf7-sf-select-apiendpoint">
+					<select id="wpcf7-sf-select-apiendpoint" name="wpcf7-ka4wp[apiendpoint]">
+						<option value="" <?php selected('', $wpcf7_api_data["apiendpoint"] ?? 0, false) ?>></option>
+						<?php 
+							foreach($ApiEndpointPosts as $singleEndpoint)
+							{
+								echo '<option value="'.esc_attr($singleEndpoint->ID).'" '.selected($singleEndpoint->ID, $wpcf7_api_data["apiendpoint"] ?? 0, false).'>'.esc_attr($singleEndpoint->post_title).'</option>';
+							}
+						?>
+					</select>
+					<?php esc_html_e('Selected API endpoint','kultur-api-for-wp'); ?>
+				</label>
+				<p class="description"><?php esc_html_e('You can select here only published api endpoints.','kultur-api-for-wp') ?></p>
+			</div>
+		</fieldset>
+	</div>
 	
 	<div id="cf7-ka4wp-api-definition">
 		<h2><?php esc_html_e('Field definition','kultur-api-for-wp'); ?></h2>
