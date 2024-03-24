@@ -29,8 +29,8 @@ if(!class_exists('WPCF7_ContactForm')){
 	<nav class="nav-tab-wrapper">
 		<a href="?post_type=ka4wp&page=ka4wp_settings" class="nav-tab <?php if($tab===null):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Default', 'kultur-api-for-wp' ); ?></a>
 		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=integrations" class="nav-tab <?php if($tab==='integrations'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Integrations', 'kultur-api-for-wp' ); ?></a>
-		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=logging" class="nav-tab <?php if($tab==='logging'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Logging', 'kultur-api-for-wp' ); ?></a>
-		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=miscellaneous" class="nav-tab <?php if($tab==='miscellaneous'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Miscellaneous', 'kultur-api-for-wp' ); ?></a>
+		<!--<a href="?post_type=ka4wp&page=ka4wp_settings&tab=logging" class="nav-tab <?php #if($tab==='logging'):?>nav-tab-active<?php #endif; ?>"><?php #esc_html_e('Logging', 'kultur-api-for-wp' ); ?></a>
+		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=miscellaneous" class="nav-tab <?php #if($tab==='miscellaneous'):?>nav-tab-active<?php #endif; ?>"><?php #esc_html_e('Miscellaneous', 'kultur-api-for-wp' ); ?></a>-->
     </nav>
 
 	<form action="options.php" method="post">
@@ -40,18 +40,17 @@ if(!class_exists('WPCF7_ContactForm')){
 				settings_fields('ka4wp_settings_integrations');
 				do_settings_sections('ka4wp_settings_integrations');
 			break;
-			case 'miscellaneous':
-				settings_fields('ka4wp_settings_miscellaneous');
-				do_settings_sections('ka4wp_settings_miscellaneous');
-			break;
-			case 'logging':
-				#settings_fields('settingsXatkitPlugin_group');
-				#do_settings_sections('xatkit-configuration');
-			break;
+			#case 'miscellaneous':
+				#settings_fields('ka4wp_settings_miscellaneous');
+				#do_settings_sections('ka4wp_settings_miscellaneous');
+			#break;
+			#case 'logging':
+				#settings_fields('ka4wp_settings_logging');
+				#do_settings_sections('ka4wp_settings_logging');
+			#break;
 			default:
-				echo 'Default tab';
-				#settings_fields('settingsXatkitPlugin_group');
-				#do_settings_sections('xatkit-configuration');
+				settings_fields('ka4wp_settings_general');
+				do_settings_sections('ka4wp_settings_general');
 			break;
 		endswitch; submit_button(); ?>
     </div>

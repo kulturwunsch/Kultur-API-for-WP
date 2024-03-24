@@ -165,9 +165,12 @@ class KA4WP {
 		$this->loader->add_action('save_post_ka4wp',$plugin_admin,'ka4wp_update_API_settings', 10, 3);
 		$this->loader->add_action('admin_menu', $plugin_admin, 'ka4wp_register_submenu', 90);
 		$this->loader->add_action('add_meta_boxes', $plugin_admin,'ka4wp_metabox');
-		$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_send_data_to_api');
+		#$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_send_data_to_api');
+		$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_prepare_formdata_for_api');
 		$this->loader->add_action('update_option_ka4wp_settings_integrations',$plugin_admin,'ka4wp_update_settings_integrations_postprocess', 10, 2);
 		$this->loader->add_action('add_option_ka4wp_settings_integrations',$plugin_admin,'ka4wp_create_settings_integrations_postprocess', 10, 1);
+		$this->loader->add_action('wp_ajax_ka4wp_get_selected_endpoint',$plugin_admin,'ka4wp_get_selected_endpoint',10);
+		$this->loader->add_action('wp_ajax_ka4wp_get_predefined_mapping',$plugin_admin,'ka4wp_get_predefined_mapping',10);
 
 		
 		#CRON

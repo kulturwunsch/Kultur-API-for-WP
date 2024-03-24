@@ -71,14 +71,17 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
-		$data = array(
-	        'site_url' => site_url(),
-	        'ajax_url' => admin_url('admin-ajax.php'),
-	        'nonce' => wp_create_nonce('ka4wp-ajax-nonce'),
-	    );
-		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-admin.js', array( 'jquery' ), $this->version, false );
-		wp_localize_script($this->ka4wp, 'ajax_object', $data);
+		
+		#if(in_array(get_post_type( get_the_ID() ), ['ka4wp', 'wpcf7']))
+		#{
+			$data = array(
+				'site_url' => site_url(),
+				'ajax_url' => admin_url('admin-ajax.php'),
+				'nonce' => wp_create_nonce('ka4wp-ajax-nonce'),
+			);
+			wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-admin.js', array( 'jquery' ), $this->version, false );
+			wp_localize_script($this->ka4wp, 'ajax_object', $data);
+		#}
 	}
 	
 	/**
@@ -276,13 +279,13 @@ class KA4WP_Admin {
 		if(is_multisite()){
 			if(!is_plugin_active_for_network('contact-form-7/wp-contact-form-7.php')){
 				echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
 			}
 		}else{
 			if(!is_plugin_active('contact-form-7/wp-contact-form-7.php')){
       			echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
     		}
     	}
@@ -583,22 +586,12 @@ class KA4WP_Admin {
 			);
 		
 		add_settings_section(
-				'ka4wp_settings_section_miscellaneous', // section ID
-				esc_html__('Miscellaneous settings', 'kultur-api-for-wp'),
+				'ka4wp_settings_section_general', // section ID
+				esc_html__('General settings', 'kultur-api-for-wp'),
 				function(){ esc_html_e('Settings that otherwise have no place.','kultur-api-for-wp'); },
-				'ka4wp_settings_miscellaneous'
+				'ka4wp_settings_general'
 			);
-			
-		add_settings_field(
-				'my_option_1',
-				esc_html__( 'My Option 1', 'kultur-api-for-wp' ),
-				array($this, 'ka4wp_settings_render_miscellaneous'),
-				'ka4wp_settings_miscellaneous',
-				'ka4wp_settings_section_miscellaneous',
-				[
-					'label_for' => 'my_option_1',
-				]
-			);
+
 	}
 	
 	/**
@@ -810,9 +803,11 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function save_contact_form_API_details($contact_form) {
-		$properties = $contact_form->get_properties();
-        $properties['ka4wp_api_integrations'] = $_POST['wpcf7-ka4wp'];
-        $contact_form->set_properties($properties);
+		#if(isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'])){
+			$properties = $contact_form->get_properties();
+			$properties['ka4wp_api_integrations'] = $_POST['wpcf7-ka4wp'];
+			$contact_form->set_properties($properties);
+		#}
 	}
 	
 	/**
@@ -839,7 +834,228 @@ class KA4WP_Admin {
 			#add_filter('wpcf7_skip_mail', '__return_true');
 		}
 	}
+	
+	/**
+	 * Ajax Endpoint to load specific API details
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_get_selected_endpoint()
+	{	
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults($_POST['post_id']);
+		
+		$predefinedMappings = [];
+		foreach($defaultsOptions as $typeKey => $typeValues)
+		{
+			if(!empty($typeValues['options']))
+			{
+				$predefinedMappings[] = ['name' => esc_attr($typeValues['name']), 'value' => esc_attr($typeKey)];
+			}
+		}
+		
+		echo wp_json_encode(['mappings' => $predefinedMappings, 'api_type' => get_post_meta($_POST['post_id'], 'ka4wp_api_type', true) ?: 'none', 'predefined' => $typeValues['options'] ? 1 : 0]);
+		exit();
+	}
+	
+	/**
+	 * API Endpoint to load selected predefined mapping
+	 *
+	 * @since    1.0.0
+	 */
+	public static function ka4wp_get_predefined_mapping()
+	{	
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults($_POST['post_id']);
+		
+		$predefinedMappings = [];
+		if(!empty($defaultsOptions[$_POST['mapping_key']]['options']))
+		{
+			foreach($defaultsOptions[$_POST['mapping_key']]['options'] as $typeKey => $typeValues)
+			{
+				$predefinedMappings[] = ['name' => esc_attr($typeValues['name']), 'value' => esc_attr($typeValues['value'])];
+			}
+		}
+		
+		echo wp_json_encode(['mappings' => $predefinedMappings ?? []]);
+		exit();
+	}
+	
+	/**
+	 * API Endpoint to load selected predefined mapping
+	 *
+	 * @since    1.0.0
+	 */
+	public static function ka4wp_get_endpoint_defaults($post_id = null)
+	{	
+		$post_id ?? $_POST['post_id'] ?? 0;
+		
+		$options = [];
+		switch(get_post_meta($post_id, 'ka4wp_api_type', true))
+		{
+			default:
+			case 'other':
+				$options = [];
+			break;
+			case 'wunsch.events':
+				$optionset = [['name' => 'Test', 'value' => '1']];
+				$options = [
+					'submit_cultureguest' => [
+							'name' => esc_html__('Registration of new culture guests', 'kultur-api-for-wp'),
+							'description' => '', 
+							'endpoint_path' => 'XX', 
+							'options' => [
+								['name' => 'Vorname', 'value' => 'firstname'],
+								['name' => 'Nachname', 'value' => 'lastname'],
+							]
+						],
+					'submit_cultureguestgroup' => [
+							'name' => esc_html__('Registration of new culture guests as a group (for organizations)', 'kultur-api-for-wp'), 
+							'description' => '', 
+							'endpoint_path' => 'XX', 
+							'options' => [
+								['name' => 'Vorname', 'value' => 'firstname'],
+								['name' => 'Nachname', 'value' => 'lastname'],
+							]
+						],
+					'submit_organisationmember' => [
+							'name' => esc_html__('Register as a organization member', 'kultur-api-for-wp'), 
+							'description' => '', 
+							'endpoint_path' => 'XX', 
+							'options' => [
+								['name' => 'Vorname', 'value' => 'firstname'],
+								['name' => 'Nachname', 'value' => 'lastname'],
+							]
+						],
+					'check_api' => [
+							'name' => esc_html__('Check the API endpoint health', 'kultur-api-for-wp'), 
+							'description' => '', 
+							'endpoint_path' => '/check', 
+							'options' => []
+						],
+					];
+			break;
+		}
+		return $options;
+	}
+	
+	/**
+	 * Prepare formdata for API submit
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_prepare_formdata_for_api($WPCF7_ContactForm) {
+		
+		error_log('API-Data: Verarbeitung gestartet');
+		
+		//prepare upload directory
+		$uploadDir = wp_upload_dir();
+		$pluginUploadDir = trailingslashit($uploadDir['basedir']).'ka4wp_temp';
+		if (!is_dir($pluginUploadDir))
+		{
+			wp_mkdir_p($pluginUploadDir);
+		}
+		
+		//prepare form fields
+		$CF7Submission = WPCF7_Submission::get_instance();
+		$posted_data = $CF7Submission->get_posted_data();
+		$uploaded_files = $CF7Submission->uploaded_files();
+		$ContactForm = $CF7Submission->get_contact_form();
+		
+		//prepare form meta information
+		$formInformation = [
+					'timestamp' => $CF7Submission->get_meta('timestamp'),
+					'remote_ip' => $CF7Submission->get_meta('remote_ip'),
+					'remote_port' => $CF7Submission->get_meta('remote_port'),
+					'user_agent' => $CF7Submission->get_meta('user_agent'),
+					'url' => $CF7Submission->get_meta('url'),
+					'current_user_id' => $CF7Submission->get_meta('current_user_id'),
+					'form_id' => $CF7Submission->get_meta('container_post_id'),
+				];
+		$posted_data['form_information'] = $formInformation;
+		
+		//handle uploaded files
+		if(!empty($uploaded_files))
+		{
+			foreach($uploaded_files as $key => $file) {
+				$fileExtension = pathinfo($file[0], PATHINFO_EXTENSION);
+				$originalFilename = pathinfo($file[0], PATHINFO_FILENAME);
+				$fileName = 'ka4wp-'.time().'.'.$fileExtension;
+				copy($file[0], $pluginUploadDir.'/'.$fileName);	
+				$posted_data['files'][$key] = ['filename' => $fileName, 'originalFilename' => $originalFilename, 'extension' => $fileExtension];
+			}
+		}
 
+		
+		#$post_id = $CF7Submission->get_meta('container_post_id');
+		#$posted_data['submitted_from'] = $post_id;
+		#$posted_data['submit_time'] = $CF7Submission->get_meta('timestamp');
+		#$posted_data['User_IP'] = $CF7Submission->get_meta('remote_ip');		
+		#self::cf7anyapi_save_form_submit_data($form_id,$posted_data);
+		
+
+		//prepare form details
+		$form_properties = $ContactForm->get_properties();
+		$form_fields = $ContactForm->scan_form_tags();
+		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
+		
+		//save logs when enabled
+		if(!empty($api_settings["logging"]))
+		{
+			error_log('API-Data: Logging aktiviert.');
+			#TODO: Store Form Data on Database for loogging.
+		}
+		
+		// skip sending mail if enable on form settings
+		if(!empty($api_settings['stop_email']))
+		{
+			$ContactForm->skip_mail = true;
+			#add_filter('wpcf7_skip_mail', '__return_true');
+		}
+		
+		//stop processing when api is disabled
+		if(empty($api_settings["send_to_api"]))
+		{
+			error_log('API-Data: API deaktiviert.');
+			return;#TODO: Fehlerhandling fehlt
+		}
+		
+		if('publish' !== get_post_status($api_settings["apiendpoint"]))
+		{
+			error_log('API-Data: Schnittstelle nicht öffentlicht.');
+			return; #TODO: Fehlerhandling fehlt
+		}
+	
+		//prepare uploads for api transfer
+		if(!empty($uploaded_files)){
+			foreach($uploaded_files as $key => $file) {
+				$posted_data['files'][$key]['file'] = base64_encode(file_get_contents($file[0]));
+			}
+		}
+		
+		$api_values = [];
+		foreach($form_fields as $form_fields_value){
+			if($form_fields_value->basetype != 'submit' && !empty($api_settings['mapping-'.$form_fields_value->raw_name]))
+			{	
+				#if(in_array($form_fields_value->raw_name, $uploaded_files))
+				if(!empty($uploaded_files[$form_fields_value->raw_name]))
+				{
+					$api_values[$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data['files'][$key] ?? [];
+				} else {
+					$api_values[$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data[$form_fields_value->raw_name];
+				}
+			}
+		}
+		
+		if(empty($api_values))
+		{
+			error_log('API-Data: Keine Werte vorhanden.');
+			return; #TODO: Fehlermeldung + Log ergänzen
+		}
+		#self::ka4wp_send_lead($wpcf7_api_data["apiendpoint"], $wpcf7_api_data["predefined-mapping"] ?? '', $api_values, $posted_data = []);
+		
+		error_log('API-Data: '.wp_json_encode($api_values));
+		
+		#wp_reset_postdata();
+	}
 		
 	/**
 	 * Load WUNSCH.events default API values
@@ -852,7 +1068,6 @@ class KA4WP_Admin {
 				'input_type'	=> 'JSON',
 				'http_method'	=> 'GET',
 				'headers'		=> [],
-				#'basic_auth'	=> $defaultOptions['ka4wp_api_key'],
 				'basic_auth'	=> get_post_meta($post_id, 'ka4wp_api_key', true),
 			);
 			
@@ -897,7 +1112,7 @@ class KA4WP_Admin {
 				'body'        => null,
 				'compress'    => false,
 				'decompress'  => true,
-				'sslverify'   => false, # TODO: Fix needed
+				'sslverify'   => true,
 				'stream'      => false,
 				'filename'    => null
 			);
@@ -942,7 +1157,7 @@ class KA4WP_Admin {
 			else{
 				$args['headers']['Content-Type'] = 'application/json';
 				if(!empty($data)) {
-					$json = json_encode($data);
+					$json = wp_json_encode($data);
 
 					if(is_wp_error($json)){
 						return ['success' => false, 'error' => $json->get_error_message()];
@@ -958,7 +1173,7 @@ class KA4WP_Admin {
 			if($api_options['input_type'] == "json"){
 
         		$args['headers']['Content-Type'] = 'application/json';
-        		$json = json_encode($data);
+        		$json = wp_json_encode($data);
         	
         		if(is_wp_error($json)){
           			return ['success' => false, 'error' => $json->get_error_message()];
