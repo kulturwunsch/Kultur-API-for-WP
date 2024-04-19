@@ -164,8 +164,8 @@ class KA4WP {
 		$this->loader->add_action('admin_init', $plugin_admin,'ka4wp_register_settings');
 		$this->loader->add_action('save_post_ka4wp',$plugin_admin,'ka4wp_update_API_settings', 10, 3);
 		$this->loader->add_action('admin_menu', $plugin_admin, 'ka4wp_register_submenu', 90);
+		$this->loader->add_action('admin_init', $plugin_admin, 'ka4wp_update_plugin', 5);
 		$this->loader->add_action('add_meta_boxes', $plugin_admin,'ka4wp_metabox');
-		#$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_send_data_to_api');
 		$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_prepare_formdata_for_api');
 		$this->loader->add_action('update_option_ka4wp_settings_integrations',$plugin_admin,'ka4wp_update_settings_integrations_postprocess', 10, 2);
 		$this->loader->add_action('add_option_ka4wp_settings_integrations',$plugin_admin,'ka4wp_create_settings_integrations_postprocess', 10, 1);
@@ -179,6 +179,7 @@ class KA4WP {
 		
 		$this->loader->add_filter('plugin_action_links',$plugin_admin,'ka4wp_add_settings_link',10,2);
         $this->loader->add_filter('wpcf7_editor_panels',$plugin_admin,'ka4wp_cf7_add_api_integration', 1, 1); // adds another tab to contact form 7 screen
+        $this->loader->add_filter('wpcf7_skip_mail',$plugin_admin,'ka4wp_check_skip_mail', 10, 2);
 		$this->loader->add_action("wpcf7_save_contact_form",$plugin_admin,'save_contact_form_API_details', 10, 1); //save contact form api integrations
         $this->loader->add_filter("wpcf7_contact_form_properties",$plugin_admin,'add_contact_form_API_properties', 10, 2); // add contact form properties
 	}

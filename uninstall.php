@@ -31,7 +31,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 	//define settings
-	$settingOptions = array('ka4wp_settings_miscellaneous', 'ka4wp_settings_integrations', 'ka4wp_settings_logging', 'ka4wp_settings_general');
+	$settingOptions = array('ka4wp_settings_miscellaneous', 'ka4wp_settings_integrations', 'ka4wp_settings_logging', 'ka4wp_settings_general', 'ka4wp_plugin_version');
 
 	// Clear up our settings
 	foreach ($settingOptions as $settingName) {
@@ -39,9 +39,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		delete_site_option($settingName);
 	}
 
-// drop a custom database table
-#global $wpdb;
-#$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}mytable" );
+	// drop a custom database table
+	global $wpdb;
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}ka4wp_logs" );
 
 	//delete taxonomy terms
 	register_taxonomy('eventcategories', 'ka4wp');
@@ -77,7 +77,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	}
 	
 	//delete all custom posts
-	$pluginPosts = get_posts( array( 'post_type' => 'products', 'numberposts' => -1) );
+	$pluginPosts = get_posts( array( 'post_type' => 'ka4wp', 'numberposts' => -1) );
 	foreach ( $pluginPosts as $singlePost ) {
 		#wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
     } 

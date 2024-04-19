@@ -55,7 +55,7 @@ You can translate Kultur-API for WordPress on [translate.wordpress.org](https://
 
 You will find **Kultur-API** menu in your WordPress admin screen.
 
-For basic usage, have a look at the [plugin's website](https://kultur-api.de/).
+For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/).
 
 == Screenshots ==
 

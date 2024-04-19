@@ -75,7 +75,8 @@ $(document).ready(function() {
 								});
 			
 			ka4wp_response.done(function(result){
-				var json_obj = JSON.parse(result);
+				//var json_obj = JSON.parse(result);
+				var json_obj = result;
 				
 				if(json_obj === undefined) {
 					return;
@@ -155,7 +156,8 @@ $(document).ready(function() {
 					}
 				});*/
 				
-				var json_obj = JSON.parse(result);
+				//var json_obj = JSON.parse(result);
+				var json_obj = result;
 				
 				if(json_obj === undefined || json_obj.mappings.length < 1)
 				{

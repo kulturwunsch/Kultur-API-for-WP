@@ -41,7 +41,7 @@ define( 'KA4WP_VERSION', '1.0.0' );
  * The code that runs during plugin activation.
  * This action is documented in includes/class-ka4wp-activator.php
  */
-function activate_ka4wp() {
+function ka4wp_activate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-activator.php';
 	KA4WP_Activator::activate();
 }
@@ -50,13 +50,13 @@ function activate_ka4wp() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-ka4wp-deactivator.php
  */
-function deactivate_ka4wp() {
+function ka4wp_deactivate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-deactivator.php';
 	KA4WP_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_ka4wp' );
-register_deactivation_hook( __FILE__, 'deactivate_ka4wp' );
+register_activation_hook( __FILE__, 'ka4wp_activate' );
+register_deactivation_hook( __FILE__, 'ka4wp_deactivate' );
 
 /**
  * The core plugin class that is used to define internationalization,
@@ -73,10 +73,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp.php';
  *
  * @since    1.0.0
  */
-function run_ka4wp() {
+function ka4wp_run() {
 
 	$plugin = new KA4WP();
 	$plugin->run();
 
 }
-run_ka4wp();
+ka4wp_run();

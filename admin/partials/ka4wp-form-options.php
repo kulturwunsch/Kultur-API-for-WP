@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 
 /**
  * Provide a admin area view for the plugin
@@ -12,7 +13,7 @@
  * @subpackage KA4WP/admin/partials
  */
 
-	$form_id = !empty($_GET['post']) ? $_GET['post'] : null;
+	$form_id = !empty($_GET['post']) ? sanitize_text_field($_GET['post']) : null;
 	$ContactForm = WPCF7_ContactForm::get_instance( $form_id );
 	if(!empty($ContactForm))
 	{
@@ -23,7 +24,7 @@
 		$form_fields = $ContactForm->scan_form_tags();
 		foreach($form_fields as $form_fields_value){
 			if($form_fields_value->basetype != 'submit'){
-				$ka4wp_field_array[$form_fields_value->raw_name] = $wpcf7_api_data['mapping-'.$form_fields_value->raw_name] ?: '';
+				$ka4wp_field_array[$form_fields_value->raw_name] = $wpcf7_api_data['mapping-'.$form_fields_value->raw_name] ?? '';
 			}
 		}
 	}
@@ -36,14 +37,16 @@
 		'order'    => 'ASC'
 	]);
 	
-	$optionset = [['name' => 'Vorname', 'value' => 'firstname'],['name' => 'Nachname', 'value' => 'lastname']];
-	
-	$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"]);
-	
-	#$defaultsOptions = self::ka4wp_get_endpoint_defaults($_POST['post_id']);
-	
+	$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"]);	
 	$defaultMappings = $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [];
 ?>	
+<div class="notice notice-success is-dismissible"> 
+	<p><strong>Settings saved.</strong></p>
+	<button type="button" class="notice-dismiss">
+		<span class="screen-reader-text">Dismiss this notice.</span>
+	</button>
+</div>
+
 	<h2><?php esc_html_e('API Integration','kultur-api-for-wp'); ?></h2>
 	<fieldset>
 		<div class="cf7_row">
@@ -184,4 +187,10 @@
 	<div id="cf7-ka4wp-no-api-definition">
 		<h2><?php esc_html_e('Select an API','kultur-api-for-wp'); ?></h2>
 		<p class="description"><?php esc_html_e('Currently, there is no API selected. Please select first an API before you can configure the API definitions.','kultur-api-for-wp') ?></p>
+		<div class="notice notice-success is-dismissible"> 
+	<p><strong>Settings saved.</strong></p>
+	<button type="button" class="notice-dismiss">
+		<span class="screen-reader-text">Dismiss this notice.</span>
+	</button>
+</div>
 	</div>

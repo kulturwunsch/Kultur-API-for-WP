@@ -116,22 +116,32 @@ Completely new features that expand the scope of the plugin should be discussed 
 
 ### Structure of the plugin
 
-The plugin uses a simple file structure that makes it possible to expand the range of functions between `Admin` and `Public` at any time.
+The plugin uses a simple file structure that makes it possible to expand the range of functions between `admin` and `public` at any time.
 
 ```
-- admin
-	- css
-	- js
-	- partials
-	- class-ka4wp-admin.php
-	- index.php
-- includes
-- languages
-- public
-- tests
-- index.php
-- kultur-api-for-wp.php
-- uninstall.php
+.
+├── .github
+├── .wordpress
+├── admin
+│   └── css
+│   └── js
+│   └── partials
+│   └── class-ka4wp-admin.php
+│   └── index.php
+├── includes
+├── languages
+├── public
+│   ├── css
+│   ├── js
+│   └── partials
+│       └── style.css
+├── routes
+│   ├── index.js
+│   └── users.js
+└── tests
+└── index.php
+└── kultur-api-for-wp.php
+└── uninstall.php
 ```
 
 ### Prefix of functions and keys
@@ -147,7 +157,7 @@ This plugin is designed for multilingualism. All texts that this plugin displays
 
 ### Use of the database
 
-This plugin currently does not use its own tables or database fields. If possible, all data should be written into existing standard fields. This increases maintainability and compatibility with later WordPress versions. If it is unavoidable to use existing tables and fields, the WordPress database functions must be used. In addition to the general WordPress table prefix, all tables must also have the `ka4wp_` prefix. **You also need to make sure that the tables are also removed when you uninstall the plugin.**
+This plugin currently does not use its own database tables. If possible, all data should be written into existing standard fields. This increases maintainability and compatibility with later WordPress versions. If it is unavoidable to use existing tables and fields, the WordPress database functions must be used. In addition to the general WordPress table prefix, all tables must also have the `ka4wp_` prefix. **You also need to make sure that the tables are also removed when you uninstall the plugin.**
 
 ### WordPress standards
 
@@ -241,9 +251,9 @@ To avoid confusion and to help you resolve your issue as quickly as possible, yo
 2. Add a title that describes your problems in as few words as possible.
 3. Fill all provided fields to help us support you.
 
-Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
+Remember that a more detailed issue-description and debug-info might suck to write, but it will help others understand and resolve your issue without asking for the information.
 
-**Note:** please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
+**Note:** Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
 
 ### Contribution development guidelines
 
