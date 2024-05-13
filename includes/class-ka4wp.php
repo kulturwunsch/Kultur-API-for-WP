@@ -246,7 +246,7 @@ class KA4WP {
 	 *
 	 * @since     1.0.0
 	 */
-	public function debug_log($content) {
+	public static function debug_log($content) {
 		
 		if(in_array(wp_get_development_mode(), ['plugin', 'all']) || WP_DEBUG_LOG == true || WP_DEBUG == true)
 		{

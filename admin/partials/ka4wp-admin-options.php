@@ -22,14 +22,7 @@ if(!class_exists('WPCF7_ContactForm')){
 <div id="ka4wp_admin" class="ka4wp_wrap">
     <p><?php esc_html_e( 'To send data to external servers, Kultur-API integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ); ?></p>
 </div>
-<div class="notice notice-success is-dismissible"> 
-	<p><strong>Settings saved.</strong></p>
-	<button type="button" class="notice-dismiss">
-		<span class="screen-reader-text">Dismiss this notice.</span>
-	</button>
-</div>
 <?php } ?>
-
 <div class="wrap">
 	<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 	<?php settings_errors('ka4wp_settings'); ?>

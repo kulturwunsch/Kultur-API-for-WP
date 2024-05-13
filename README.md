@@ -10,51 +10,35 @@ Do you like the plugin and would you like to support the creators in continually
 
 ## Table of Contents
 
+- [Kultur-API for Wordpress](#kultur-api-for-wordpress)
+	- [Support the project](#support-the-project)
+	- [Table of Contents](#table-of-contents)
 - [Getting started](#getting-started)
-	- [Notes](#notes-1)
 	- [Requirements](#requirements)
 	- [Features](#features)
 	- [Installation](#installation)
-		- [Setting up Apache](#setting-up-apache)
-		- [Setting up Nginx](#setting-up-nginx)
-		- [Setting up IIS](#setting-up-iis)
-		- [Configuration](#configuration)
-		- [Helper functions](#helper-functions)
-- [Routes](#routes)
-	- [Basic routing](#basic-routing)
-		- [Class hinting](#class-hinting)
-		- [Available methods](#available-methods)
-		- [Multiple HTTP-verbs](#multiple-http-verbs)
-	- [Route parameters](#route-parameters)
-		- [Required parameters](#required-parameters)
-		- [Optional parameters](#optional-parameters)
-		- [Regular expression constraints](#regular-expression-constraints)
-		- [Regular expression route-match](#regular-expression-route-match)
-		- [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
-	- [Named routes](#named-routes)
-		- [Generating URLs To Named Routes](#generating-urls-to-named-routes)
-	- [Router groups](#router-groups)
-		- [Middleware](#middleware)
-		- [Namespaces](#namespaces)
-		- [Subdomain-routing](#subdomain-routing)
-		- [Route prefixes](#route-prefixes)
-	- [Form Method Spoofing](#form-method-spoofing)
-	- [Accessing The Current Route](#accessing-the-current-route)
-	- [Other examples](#other-examples)
-- [Validation](#validation)
-- [CSRF-protection](#csrf-protection)
-	- [Adding CSRF-verifier](#adding-csrf-verifier)
-	- [Getting CSRF-token](#getting-csrf-token)
-	- [Custom CSRF-verifier](#custom-csrf-verifier)
-	- [Custom Token-provider](#custom-token-provider)
-- [Middlewares](#middlewares)
-	- [Example](#example-1)
-- [ExceptionHandlers](#exceptionhandlers)
-	- [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
-	- [Using custom exception handlers](#using-custom-exception-handlers)
-		- [Prevent merge of parent exception-handlers](#prevent-merge-of-parent-exception-handlers)
-
-
+- [Contribute](#contribute)
+	- [New functions](#new-functions)
+	- [Further development and maintenance](#further-development-and-maintenance)
+		- [Structure of the plugin](#structure-of-the-plugin)
+		- [Prefix of functions and keys](#prefix-of-functions-and-keys)
+		- [Language in the plugin](#language-in-the-plugin)
+		- [Use of the database](#use-of-the-database)
+		- [WordPress standards](#wordpress-standards)
+		- [Use of individual post types](#use-of-individual-post-types)
+		- [Use of Taxonomy](#use-of-taxonomy)
+		- [Contact form 7](#contact-form-7)
+			- [Form field datasets](#form-field-datasets)
+			- [Disable email sending](#disable-email-sending)
+		- [Cron jobs](#cron-jobs)
+		- [API Endpoints](#api-endpoints)
+		- [Test und Releases](#test-und-releases)
+			- [Debug logs](#debug-logs)
+		- [Documentation](#documentation)
+		- [Changelog](#changelog)
+- [Help and support](#help-and-support)
+	- [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
+	- [Contribution development guidelines](#contribution-development-guidelines)
 ___
 
 # Getting started
@@ -237,7 +221,7 @@ The documentation of this plugin is an important part of the development. Within
 ### Changelog
 
 
-## Help and support
+# Help and support
 
 In this area you will find help and common errors. Before reporting an error, please check whether it has already been reported.
 
@@ -245,7 +229,7 @@ In this area you will find help and common errors. Before reporting an error, pl
 
 To avoid confusion and to help you resolve your issue as quickly as possible, you should provide a detailed explanation of the problem you are experiencing.
 
-### Procedure for reporting a new issue
+## Procedure for reporting a new issue
 
 1. Go to [this page](https://github.com/kulturwunsch/Kultur-API-for-WP/issues/new) to create a new issue.
 2. Add a title that describes your problems in as few words as possible.
@@ -255,7 +239,7 @@ Remember that a more detailed issue-description and debug-info might suck to wri
 
 **Note:** Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
 
-### Contribution development guidelines
+## Contribution development guidelines
 
 - Please try to follow the PSR-2 codestyle guidelines.
 

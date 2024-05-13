@@ -40,12 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"]);	
 	$defaultMappings = $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [];
 ?>	
-<div class="notice notice-success is-dismissible"> 
-	<p><strong>Settings saved.</strong></p>
-	<button type="button" class="notice-dismiss">
-		<span class="screen-reader-text">Dismiss this notice.</span>
-	</button>
-</div>
 
 	<h2><?php esc_html_e('API Integration','kultur-api-for-wp'); ?></h2>
 	<fieldset>
@@ -187,10 +181,4 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	<div id="cf7-ka4wp-no-api-definition">
 		<h2><?php esc_html_e('Select an API','kultur-api-for-wp'); ?></h2>
 		<p class="description"><?php esc_html_e('Currently, there is no API selected. Please select first an API before you can configure the API definitions.','kultur-api-for-wp') ?></p>
-		<div class="notice notice-success is-dismissible"> 
-	<p><strong>Settings saved.</strong></p>
-	<button type="button" class="notice-dismiss">
-		<span class="screen-reader-text">Dismiss this notice.</span>
-	</button>
-</div>
 	</div>
