@@ -110,68 +110,108 @@ class KA4WP_Admin {
     }
 	
 	/**
-	 * Run after settings "integrations" are added.
+	 * Run after settings "api_receive_eventcategories" added.
 	 *
 	 * @since    1.0.0
 	 */
-	public function ka4wp_create_settings_integrations_postprocess($newValue) {
+	public function ka4wp_create_settings_api_receive_eventcategories($newValue) {
 		
-		$this->ka4wp_update_settings_integrations_postprocess('', $newValue);
+		$this->ka4wp_update_settings_api_receive_eventcategories('', $newValue);
 	}
 	
 	/**
-	 * Run after settings section "integrations" are modified
+	 * Run after settings section "api_receive_eventcategories" are modified
 	 *
 	 * @since    1.0.0
 	 */
-	public function ka4wp_update_settings_integrations_postprocess($oldValue, $newValue) {
+	public function ka4wp_update_settings_api_receive_eventcategories($oldValue, $newValue) {
 		
-		if(!empty($newValue['api_receive_eventcategories']) && $newValue['api_receive_eventcategories'] != "-1" && empty(wp_next_scheduled('ka4wp_cron_api_update_eventcategories')))
+		if(!empty($newValue) && $newValue != "-1")
 		{
-			$nr = wp_schedule_event(time(), sanitize_text_field($newValue['api_receive_eventcategories_recurrence']) ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
-			
-			if(is_bool($nr) && $nr == true) { 
-				error_log( 'Next run planned: '.wp_next_scheduled('ka4wp_cron_api_update_eventcategories')); 
-			} else { 
-				#error_log('Fehler bei Planung: '.$nr->get_error_message()); 
-			}
-
-		} elseif(empty($newValue['api_receive_eventcategories']) || $newValue['api_receive_eventcategories'] == "-1") {
-			
-			if(wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
+			if(empty(wp_next_scheduled('ka4wp_cron_api_update_eventcategories')))
 			{
-				$nr = wp_clear_scheduled_hook('ka4wp_cron_api_update_eventcategories');
-				
-				if(is_int($nr)) { 
-					error_log( 'Jobs unplanned: '.$nr); 
-				} else { 
-					#error_log('Fehler bei unplanning: '.$nr->get_error_message()); 
-				}
+				wp_schedule_event(time(), get_option('ka4wp_api_receive_eventcategories_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
 			}
+		} else {
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_eventcategories');
 		}
+	}
+	
+	/**
+	 * Run after settings "api_receive_eventcategories_recurrence" added.
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_create_settings_api_receive_eventcategories_recurrence($newValue) {
 		
-		if(!empty($newValue['api_receive_impartingareas']) && $newValue['api_receive_impartingareas'] != "-1" && empty(wp_next_scheduled('ka4wp_cron_api_update_impartingareas')))
+		$this->ka4wp_update_settings_api_receive_eventcategories_recurrence('', $newValue);
+	}
+	
+	/**
+	 * Run after settings section "api_receive_eventcategories_recurrence" are modified
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_update_settings_api_receive_eventcategories_recurrence($oldValue, $newValue) {
+		
+		$apiEnabled = get_option('ka4wp_api_receive_eventcategories_recurrence', '-1') ?: '-1';
+		
+		if($oldValue != $newValue && $apiEnabled != '-1')
 		{
-			$nr = wp_schedule_event(time(), sanitize_text_field($newValue['api_receive_impartingareas_recurrence']) ?: 'daily', 'ka4wp_cron_api_update_impartingareas');
-			
-			if(is_bool($nr) && $nr == true) { 
-				error_log( 'Next run planned: '.wp_next_scheduled('ka4wp_cron_api_update_impartingareas')); 
-			} else { 
-				error_log('Fehler bei Planung: '.$nr->get_error_message()); 
-			}
-
-		} elseif(empty($newValue['api_receive_impartingareas']) || $newValue['api_receive_impartingareas'] == "-1") {
-			
-			if(wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
+			wp_schedule_event(time(), $newValue, 'ka4wp_cron_api_update_eventcategories');
+		}
+	}
+	
+	/**
+	 * Run after settings "api_receive_impartingareas" added.
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_create_settings_api_receive_impartingareas($newValue) {
+		
+		$this->ka4wp_update_settings_api_receive_impartingareas('', $newValue);
+	}
+	
+	/**
+	 * Run after settings section "api_receive_impartingareas" are modified
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_update_settings_api_receive_impartingareas($oldValue, $newValue) {
+		
+		if(!empty($newValue) && $newValue != "-1")
+		{
+			if(empty(wp_next_scheduled('ka4wp_cron_api_update_impartingareas')))
 			{
-				$nr = wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
-				
-				if(is_int($nr)) { 
-					error_log( 'Jobs unplanned: '.$nr); 
-				} else { 
-					error_log('Fehler bei unplanning: '.$nr->get_error_message()); 
-				}
+				wp_schedule_event(time(), get_option('ka4wp_api_receive_impartingareas_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_impartingareas');
 			}
+		} else {
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
+		}
+	}
+	
+	/**
+	 * Run after settings "api_receive_impartingareas_recurrence" added.
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_create_settings_api_receive_impartingareas_recurrence($newValue) {
+		
+		$this->ka4wp_update_settings_api_receive_impartingareas_recurrence('', $newValue);
+	}
+	
+	/**
+	 * Run after settings section "api_receive_impartingareas_recurrence" are modified
+	 *
+	 * @since    1.0.0
+	 */
+	public function ka4wp_update_settings_api_receive_impartingareas_recurrence($oldValue, $newValue) {
+		
+		$apiEnabled = get_option('ka4wp_api_receive_impartingareas', '-1') ?: '-1';
+		
+		if($oldValue != $newValue && $apiEnabled != '-1')
+		{
+			wp_schedule_event(time(), $newValue, 'ka4wp_cron_api_update_impartingareas');
 		}
 	}
 	
@@ -182,14 +222,14 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_api_request_update_eventcategories() {
 		
-		$options = get_option('ka4wp_settings_integrations');
+		$selectedApi = get_option('ka4wp_api_receive_eventcategories', '-1') ?: '-1';
 
-		if(empty($options['api_receive_eventcategories']) || $options['api_receive_eventcategories'] == '-1')
+		if(empty($selectedApi) || $selectedApi == '-1')
 		{
 			return;
 		}
 		
-		$response = self::ka4wp_send_lead($options['api_receive_eventcategories'], 'load_eventcategories');
+		$response = self::ka4wp_send_lead($selectedApi, 'load_eventcategories');
 
 		if(!empty($response['success']) && $response['response']['code'] == 200)
 		{
@@ -209,14 +249,14 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_api_request_update_impartingareas() {
 		
-		$options = get_option('ka4wp_settings_integrations');
+		$selectedApi = get_option('ka4wp_api_receive_impartingareas', '-1') ?: '-1';
 
-		if(empty($options['api_receive_impartingareas']) || $options['api_receive_impartingareas'] == '-1')
+		if(empty($selectedApi) || $selectedApi == '-1')
 		{
 			return;
 		}
 		
-		$response = self::ka4wp_send_lead($options['api_receive_impartingareas'], 'load_impartingareas');
+		$response = self::ka4wp_send_lead($selectedApi, 'load_impartingareas');
 
 		if(!empty($response['success']) && $response['response']['code'] == 200)
 		{
@@ -542,67 +582,68 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_register_settings() {
 		
-		register_setting('ka4wp_settings_general', 'ka4wp_settings_general', 'ka4wp_settings_validate_general');
-		register_setting('ka4wp_settings_logging', 'ka4wp_settings_logging', 'ka4wp_settings_validate_logging');
-		register_setting('ka4wp_settings_integrations', 'ka4wp_settings_integrations', 'ka4wp_settings_validate_integrations');
-		register_setting('ka4wp_settings_miscellaneous', 'ka4wp_settings_miscellaneous', 'ka4wp_settings_validate_miscellaneous');
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_eventcategories', 'ka4wp_settings_validate_integrations');
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_settings_validate_integrations');
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_impartingareas', 'ka4wp_settings_validate_integrations');
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_settings_validate_integrations');
+		register_setting('ka4wp_settings_miscellaneous', 'ka4wp_prevent_deletion', 'ka4wp_settings_validate_integrations', ['default' => 0, 'type' => 'integer']);
 		
 		add_settings_section(
 				'ka4wp_settings_section_integrations', // section ID
 				esc_html__('Integration settings', 'kultur-api-for-wp'), // title (optional)
-				'', // callback function to display the section (optional) f.e. description
+				function(){ esc_html_e('Settings for background APIs and integrations','kultur-api-for-wp'); }, // callback function to display the section (optional) f.e. description
 				'ka4wp_settings_integrations'
 			);
 			
 		add_settings_field(
-				'api_receive_eventcategories',
+				'ka4wp_api_receive_eventcategories',
 				esc_html__('Retrive event categories', 'kultur-api-for-wp'),
 				array($this, 'ka4wp_settings_render_publish_api'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
-					'label_for' => 'api_receive_eventcategories',
+					'label_for' => 'ka4wp_api_receive_eventcategories',
 					'option_group' => 'ka4wp_settings_integrations',
-					'name' => 'api_receive_eventcategories',
+					'name' => 'ka4wp_api_receive_eventcategories',
 				]
 			);
 			
 		add_settings_field(
-				'api_receive_eventcategories_recurrence',
+				'ka4wp_api_receive_eventcategories_recurrence',
 				esc_html__('Recurrence of the API', 'kultur-api-for-wp'),
 				array($this, 'ka4wp_settings_render_cron_recurrence'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
-					'label_for' => 'api_receive_eventcategories_recurrence',
+					'label_for' => 'ka4wp_api_receive_eventcategories_recurrence',
 					'option_group' => 'ka4wp_settings_integrations',
-					'name' => 'api_receive_eventcategories_recurrence',
+					'name' => 'ka4wp_api_receive_eventcategories_recurrence',
 				]
 			);
 			
 		add_settings_field(
-				'api_receive_impartingareas',
+				'ka4wp_api_receive_impartingareas',
 				esc_html__('Retrive imparting areas', 'kultur-api-for-wp'),
 				array($this, 'ka4wp_settings_render_publish_api'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
-					'label_for' => 'api_receive_impartingareas',
+					'label_for' => 'ka4wp_api_receive_impartingareas',
 					'option_group' => 'ka4wp_settings_integrations',
-					'name' => 'api_receive_impartingareas',
+					'name' => 'ka4wp_api_receive_impartingareas',
 				]
 			);
 			
 		add_settings_field(
-				'api_receive_impartingareas_recurrence',
+				'ka4wp_api_receive_impartingareas_recurrence',
 				esc_html__('Recurrence of the API', 'kultur-api-for-wp'),
 				array($this, 'ka4wp_settings_render_cron_recurrence'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
-					'label_for' => 'api_receive_impartingareas_recurrence',
+					'label_for' => 'ka4wp_api_receive_impartingareas_recurrence',
 					'option_group' => 'ka4wp_settings_integrations',
-					'name' => 'api_receive_impartingareas_recurrence',
+					'name' => 'ka4wp_api_receive_impartingareas_recurrence',
 				]
 			);
 		
@@ -611,6 +652,34 @@ class KA4WP_Admin {
 				esc_html__('General settings', 'kultur-api-for-wp'),
 				function(){ esc_html_e('Settings that otherwise have no place.','kultur-api-for-wp'); },
 				'ka4wp_settings_general'
+			);
+			
+		add_settings_section(
+				'ka4wp_settings_section_logging', // section ID
+				esc_html__('Logging settings', 'kultur-api-for-wp'),
+				function(){ esc_html_e('Global settings around the topic of logging.','kultur-api-for-wp'); },
+				'ka4wp_settings_logging'
+			);
+		
+		//miscellaneous settings group
+		add_settings_section(
+				'ka4wp_settings_section_miscellaneous', // section ID
+				esc_html__('Miscellaneous settings', 'kultur-api-for-wp'),
+				function(){ esc_html_e('Miscellaneous settings relating to the Kultur-API integration','kultur-api-for-wp'); },
+				'ka4wp_settings_miscellaneous'
+			);
+			
+		add_settings_field(
+				'ka4wp_prevent_deletion',
+				esc_html__('Prevent deletion when uninstalling', 'kultur-api-for-wp'),
+				array($this, 'ka4wp_settings_render_checkbox'),
+				'ka4wp_settings_miscellaneous',
+				'ka4wp_settings_section_miscellaneous',
+				[
+					'label_for' => 'ka4wp_prevent_deletion',
+					'option_group' => 'ka4wp_settings_miscellaneous',
+					'name' => 'ka4wp_prevent_deletion',
+				]
 			);
 
 	}
@@ -622,8 +691,7 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_settings_render_publish_api($args) {
 		
-		$options = get_option($args['option_group']);
-		$field = $options[$args['name']];
+		$option = get_option($args['name'], '-1');
 	
 		$posts = get_posts([
 						'post_type' => 'ka4wp',
@@ -632,11 +700,11 @@ class KA4WP_Admin {
 						'order'    => 'ASC'
 					]);
 					
-		$output = '<select id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['option_group']).'['.esc_html($args['name']).']">';
-		$output .= '<option value="-1" '.selected('-1', $field, false).'>'.esc_html__('DISABLED', 'kultur-api-for-wp').'</option>';
+		$output = '<select id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['name']).'">';
+		$output .= '<option value="-1" '.selected('-1', $option, false).'>'.esc_html__('DISABLED', 'kultur-api-for-wp').'</option>';
 			foreach($posts as $post)
 			{
-				$output .= '<option value="'.esc_attr($post->ID).'" '.selected($post->ID, $field, false).'>'.esc_attr($post->post_title).'</option>';
+				$output .= '<option value="'.esc_attr($post->ID).'" '.selected($post->ID, $option, false).'>'.esc_attr($post->post_title).'</option>';
 			}
 		$output .= '</select>';
 		
@@ -650,38 +718,30 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_settings_render_cron_recurrence($args) {
 		
-		$options = get_option($args['option_group']);
-		$field = $options[$args['name']];
+		$option = get_option($args['name'], '-1');
 		
-		$output = '<select id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['option_group']).'['.esc_html($args['name']).']">';
-		$output .= '<option value="hourly" '.selected('hourly', $field, false).'>'.esc_html__('Stündlich', 'kultur-api-for-wp').'</option>';
-		$output .= '<option value="twicedaily’" '.selected('twicedaily’', $field, false).'>'.esc_html__('Zweimal täglich', 'kultur-api-for-wp').'</option>';
-		$output .= '<option value="daily’" '.selected('daily’', $field, false).'>'.esc_html__('Einmal täglich', 'kultur-api-for-wp').'</option>';
-		$output .= '<option value="weekly" '.selected('weekly', $field, false).'>'.esc_html__('Wöchentlich', 'kultur-api-for-wp').'</option>';
+		$output = '<select id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['name']).'">';
+		$output .= '<option value="hourly" '.selected('hourly', $option, false).'>'.esc_html__('Stündlich', 'kultur-api-for-wp').'</option>';
+		$output .= '<option value="twicedaily’" '.selected('twicedaily’', $option, false).'>'.esc_html__('Zweimal täglich', 'kultur-api-for-wp').'</option>';
+		$output .= '<option value="daily’" '.selected('daily’', $option, false).'>'.esc_html__('Einmal täglich', 'kultur-api-for-wp').'</option>';
+		$output .= '<option value="weekly" '.selected('weekly', $option, false).'>'.esc_html__('Wöchentlich', 'kultur-api-for-wp').'</option>';
 		$output .= '</select>';
 		
 		echo wp_kses($output, ['select' => ['id' => [], 'name' => []], 'option' => ['value' => [], 'selected' => []]]);
 	}
 	
 	/**
-	 * Render the edited settings "miscellaneous"
+	 * Render simple checkbox settings
 	 *
 	 * @since    1.0.0
 	 */
-	public function ka4wp_settings_render_miscellaneous($input) {
+	public function ka4wp_settings_render_checkbox($args) {
 		
+		$option = get_option($args['name']);
 		
-	}
-	
-	/**
-	 * Validate the edited settings "general"
-	 *
-	 * @since    1.0.0
-	 */
-	public function ka4wp_settings_validate_general($input) {
-
+		$output = '<input type="checkbox" id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['name']).'" value="1" '.checked('1', $option, false).'>';
 		
-		return $input;
+		echo wp_kses($output, ['input' => ['id' => [], 'type' => [], 'value' => [], 'checked' => [], 'name' => []]]);
 	}
 	
 	/**
@@ -700,26 +760,6 @@ class KA4WP_Admin {
 		
 		$input['api_receive_impartingareas_recurrence'] = in_array($input['api_receive_impartingareas_recurrence'], ['hourly', 'twicedaily', 'daily', 'weekly']) ? sanitize_text_field($input['api_receive_impartingareas_recurrence']) : 'daily';
 		
-		return $input;
-	}
-	
-	/**
-	 * Validate the edited settings "miscellaneous"
-	 *
-	 * @since    1.0.0
-	 */
-	public function ka4wp_settings_validate_miscellaneous($input) {
-		
-		return $input;
-	}
-	
-	/**
-	 * Validate the edited settings "logging"
-	 *
-	 * @since    1.0.0
-	 */
-	public function ka4wp_settings_validate_logging($input) {
-
 		return $input;
 	}
 	

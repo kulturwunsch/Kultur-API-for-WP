@@ -32,15 +32,23 @@ class KA4WP_Activator {
 	public static function activate() {
 
 		// schedule cron to receive event categories
-		$integrationOptions = get_option('ka4wp_settings_integrations');
-		if(!empty($integrationOptions['api_receive_eventcategories']) && $integrationOptions['api_receive_eventcategories'] != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
+		$categoryCronEnabled = get_option('ka4wp_api_receive_eventcategories', '-1') ?: '-1';
+		
+		if($categoryCronEnabled != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
 		{
-			wp_schedule_event(time(), $integrationOptions['api_receive_eventcategories_duration'], 'ka4wp_cron_api_update_eventcategories');
+			wp_schedule_event(time(), get_option('ka4wp_api_receive_eventcategories_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
 		}
 		
-		if(!empty($integrationOptions['api_receive_impartingareas']) && $integrationOptions['api_receive_impartingareas'] != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
+		$impartingCronEnabled = get_option('ka4wp_api_receive_impartingareas', '-1') ?: '-1';
+		if($impartingCronEnabled != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
 		{
-			wp_schedule_event(time(), $integrationOptions['api_receive_impartingareas_duration'], 'ka4wp_cron_api_update_impartingareas');
+			wp_schedule_event(time(), get_option('ka4wp_api_receive_impartingareas_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_impartingareas');
+		}
+		
+		//set installation id if empty
+		if(get_option( 'ka4wp_installation_id', '0' ) != '0')
+		{
+			add_option( 'ka4wp_installation_id', md5(uniqid('ka4wp_', true)) );
 		}
 
 	}

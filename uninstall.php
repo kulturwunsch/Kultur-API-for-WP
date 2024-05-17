@@ -30,54 +30,57 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-	//define settings
-	$settingOptions = array('ka4wp_settings_miscellaneous', 'ka4wp_settings_integrations', 'ka4wp_settings_logging', 'ka4wp_settings_general', 'ka4wp_plugin_version');
-
-	// Clear up our settings
-	foreach ($settingOptions as $settingName) {
-		delete_option($settingName);
-		delete_site_option($settingName);
-	}
-
-	// drop a custom database table
-	global $wpdb;
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}ka4wp_logs" );
-
-	//delete taxonomy terms
-	register_taxonomy('eventcategories', 'ka4wp');
-	$terms = get_terms(['taxonomy' => 'eventcategories', 'hide_empty' => false]);
-	if(!empty($terms))
+	if(empty(get_option('ka4wp_prevent_deletion')))
 	{
-		foreach($terms as $category)
-		{
-			wp_delete_term($category->term_id, 'eventcategories');
+		//define settings
+		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_prevent_deletion');
+
+		// Clear up our settings
+		foreach ($settingOptions as $settingName) {
+			delete_option($settingName);
+			delete_site_option($settingName);
 		}
-	}
-	
-	register_taxonomy('impartingareas', 'ka4wp');
-	$terms = get_terms(['taxonomy' => 'impartingareas', 'hide_empty' => false]);
-	if(!empty($terms))
-	{
-		foreach($terms as $category)
-		{
-			wp_delete_term($category->term_id, 'impartingareas');
-		}
-	}
 
-	// unscheduled load event categories		
-	if(wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
-	{
-		wp_clear_scheduled_hook('ka4wp_cron_api_update_eventcategories');
-	}
+		// drop a custom database table
+		global $wpdb;
+		#$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}ka4wp_logs" );
+
+		//delete taxonomy terms
+		register_taxonomy('eventcategories', 'ka4wp');
+		$terms = get_terms(['taxonomy' => 'eventcategories', 'hide_empty' => false]);
+		if(!empty($terms))
+		{
+			foreach($terms as $category)
+			{
+				wp_delete_term($category->term_id, 'eventcategories');
+			}
+		}
 		
-	// unscheduled load imparting areas		
-	if(wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
-	{
-		wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
+		register_taxonomy('impartingareas', 'ka4wp');
+		$terms = get_terms(['taxonomy' => 'impartingareas', 'hide_empty' => false]);
+		if(!empty($terms))
+		{
+			foreach($terms as $category)
+			{
+				wp_delete_term($category->term_id, 'impartingareas');
+			}
+		}
+
+		// unscheduled load event categories		
+		if(wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
+		{
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_eventcategories');
+		}
+			
+		// unscheduled load imparting areas		
+		if(wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
+		{
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
+		}
+		
+		//delete all custom posts
+		$pluginPosts = get_posts( array( 'post_type' => 'ka4wp', 'numberposts' => -1) );
+		foreach ( $pluginPosts as $singlePost ) {
+			wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
+		}
 	}
-	
-	//delete all custom posts
-	$pluginPosts = get_posts( array( 'post_type' => 'ka4wp', 'numberposts' => -1) );
-	foreach ( $pluginPosts as $singlePost ) {
-		#wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
-    } 

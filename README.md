@@ -122,9 +122,9 @@ The plugin uses a simple file structure that makes it possible to expand the ran
 ├── routes
 │   ├── index.js
 │   └── users.js
-└── tests
-└── index.php
-└── kultur-api-for-wp.php
+├── tests
+├── index.php
+├── kultur-api-for-wp.php
 └── uninstall.php
 ```
 
