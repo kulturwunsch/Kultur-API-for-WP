@@ -1,7 +1,6 @@
 # Directories
 /.wordpress-org export-ignore
 /.github export-ignore
-/.git export-ignore
 /tests export-ignore
 
 # Files
