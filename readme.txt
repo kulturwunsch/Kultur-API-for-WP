@@ -1,7 +1,7 @@
 === Kultur-API for WordPress ===
 Contributors: kulturwunsch,juventiner
 Donate link: https://kulturwunsch.de/spenden/
-Tags: contact, form, contact form, feedback, email, ajax, captcha, akismet, multilingual
+Tags: contact form, culture, api, multilingual, events
 Requires at least: 6.3
 Requires PHP: 7.4
 Tested up to: 6.4
