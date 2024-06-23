@@ -33,7 +33,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	if(empty(get_option('ka4wp_prevent_deletion')))
 	{
 		//define settings
-		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_prevent_deletion');
+		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_prevent_deletion');
 
 		// Clear up our settings
 		foreach ($settingOptions as $settingName) {
@@ -83,4 +83,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		foreach ( $pluginPosts as $singlePost ) {
 			wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
 		}
+		
+		//delete cf7 postmeta
+		delete_post_meta_by_key('_ka4wp_api_integrations');
 	}
