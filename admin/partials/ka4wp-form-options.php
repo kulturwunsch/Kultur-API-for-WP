@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @package    KA4WP
  * @subpackage KA4WP/admin/partials
  */
+ 
+	if(!is_plugin_active('contact-form-7/wp-contact-form-7.php') && (is_multisite() && !is_plugin_active_for_network('contact-form-7/wp-contact-form-7.php')))
+	{
+		wp_die(esc_html_e('You have to install the Contact Form 7 plugin before you can configure this form.','kultur-api-for-wp'), esc_html_e('Contact Form 7 plugin is required','kultur-api-for-wp'));
+	}
 
 	$form_id = !empty($_GET['post']) ? sanitize_text_field($_GET['post']) : null;
 	$ContactForm = WPCF7_ContactForm::get_instance( $form_id );
@@ -19,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	{
 		$props = $ContactForm->get_properties();
 	
-		$wpcf7_api_data = $props['ka4wp_api_integrations'] ?? [];
+		$wpcf7_api_data = $props['ka4wp_api_integrations'] ?: [];
 	
 		$form_fields = $ContactForm->scan_form_tags();
 		foreach($form_fields as $form_fields_value){
@@ -27,8 +32,11 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				$ka4wp_field_array[$form_fields_value->raw_name] = $wpcf7_api_data['mapping-'.$form_fields_value->raw_name] ?? '';
 			}
 		}
+		
+		$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"] ?? []);
+		$defaultMappings = $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [];
 	}
-
+	
 	//load API types
 	$ApiEndpointPosts = get_posts([
 		'post_type' => 'ka4wp',
@@ -36,9 +44,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		'numberposts' => -1,
 		'order'    => 'ASC'
 	]);
-	
-	$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"]);	
-	$defaultMappings = $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [];
 ?>	
 
 	<h2><?php esc_html_e('API Integration','kultur-api-for-wp'); ?></h2>
@@ -55,7 +60,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		<div class="cf7_row">
 			<label for="wpcf7-sf-stop_email">
 				<input type="checkbox" id="wpcf7-sf-stop_email"
-					name="wpcf7-ka4wp[stop_email]" value = "1" <?php echo checked(1, $wpcf7_api_data["stop_email"] ?? 0); ?>/>
+					name="wpcf7-ka4wp[stop_email]" value = "1" <?php checked(1, $wpcf7_api_data["stop_email"] ?? 0); ?>/>
 				<?php esc_html_e('Skip sending emails','kultur-api-for-wp'); ?>
 			</label>
 			<p class="description"><?php esc_html_e('If enabled, emails will not be sent upon form submission.','kultur-api-for-wp') ?></p>
@@ -75,19 +80,23 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		<label><?php esc_html_e('Here you can select the specified API which should used to transfer the form entered data.','kultur-api-for-wp'); ?></label>
 		<fieldset>
 			<div class="cf7_row">
-				<label for="wpcf7-sf-select-apiendpoint">
-					<select id="wpcf7-sf-select-apiendpoint" name="wpcf7-ka4wp[apiendpoint]">
-						<option value="" <?php selected('', $wpcf7_api_data["apiendpoint"] ?? 0, false) ?>></option>
-						<?php 
-							foreach($ApiEndpointPosts as $singleEndpoint)
-							{
-								echo '<option value="'.esc_attr($singleEndpoint->ID).'" '.selected($singleEndpoint->ID, $wpcf7_api_data["apiendpoint"] ?? 0, false).'>'.esc_attr($singleEndpoint->post_title).'</option>';
-							}
-						?>
-					</select>
-					<?php esc_html_e('Selected API endpoint','kultur-api-for-wp'); ?>
-				</label>
-				<p class="description"><?php esc_html_e('You can select here only published api endpoints.','kultur-api-for-wp') ?></p>
+				<?php if(!empty($ApiEndpointPosts)) { ?>
+					<label for="wpcf7-sf-select-apiendpoint">
+						<select id="wpcf7-sf-select-apiendpoint" name="wpcf7-ka4wp[apiendpoint]">
+							<option value="" <?php selected('', $wpcf7_api_data["apiendpoint"] ?? 0, false) ?>></option>
+							<?php 
+								foreach($ApiEndpointPosts as $singleEndpoint)
+								{
+									echo '<option value="'.$singleEndpoint->ID.'" '.selected($singleEndpoint->ID, $wpcf7_api_data["apiendpoint"] ?? 0, false).'>'.esc_attr($singleEndpoint->post_title).'</option>';
+								}
+							?>
+						</select>
+						<?php esc_html_e('Selected API endpoint','kultur-api-for-wp'); ?>
+					</label>
+					<p class="description"><?php esc_html_e('You can select here only published api endpoints.','kultur-api-for-wp') ?></p>
+				<?php } else {
+					esc_html_e('There are no published API endpoints at the moment. Please ensure that your API endpoint is published. You can add the api settings later after submit your new form.','kultur-api-for-wp');
+				} ?>
 			</div>
 		</fieldset>
 	</div>
@@ -123,7 +132,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			<fieldset>
 				<div id="cf7anyapi-form-fields" class="form-fields">        
 				<?php
-					if($ka4wp_field_array){
+					if(!empty($ka4wp_field_array)){
 						foreach($ka4wp_field_array as $ka4wp_form_field_key => $ka4wp_form_field_value){
 				?>
 					<div class="cf7_row">
@@ -147,14 +156,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 			<fieldset>
 				<div id="cf7anyapi-form-fields" class="form-fields">        
 				<?php
-					if($ka4wp_field_array){
+					if(!empty($ka4wp_field_array)){
 						foreach($ka4wp_field_array as $ka4wp_form_field_key => $ka4wp_form_field_value){
 				?>
 					<div class="cf7_row">
 						<label for="wpcf7-field-mapping-<?php echo esc_html($ka4wp_form_field_key); ?>">
 							<?php echo esc_html($ka4wp_form_field_key); ?> (<?php echo esc_html($ka4wp_form_field_value); ?>)
 							<select id="wpcf7-field-mapping-<?php echo esc_html($ka4wp_form_field_key); ?>" name="wpcf7-ka4wp[mapping-<?php echo esc_html($ka4wp_form_field_key); ?>]" class="predefined-field-mapping">
-								<option value="" <?php echo selected('', $ka4wp_form_field_value); ?>><?php esc_html_e("Don't send this field to endpoint via API", 'kultur-api-for-wp' ); ?></option>
+								<option value="" <?php selected('', $ka4wp_form_field_value, '', false); ?>><?php esc_html_e("Don't send this field to endpoint via API", 'kultur-api-for-wp' ); ?></option>
 								<?php
 								if(!empty($defaultMappings))
 								{
