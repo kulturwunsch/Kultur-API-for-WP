@@ -4,10 +4,11 @@ Donate link: https://kulturwunsch.de/spenden/
 Tags: contact form, api, events, culture, multilingual
 Requires at least: 6.3
 Requires PHP: 7.4
-Tested up to: 6.5
-Stable tag: 1.1.0
+Tested up to: 6.6
+Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=contact-form-7%2Ckultur-api-for-wp&redirect=edit.php%3Fpost_type%3Dka4wp%26page%3Dka4wp_settings&ni=true
 
 Simple integration of your culture database into WordPress
 
@@ -15,7 +16,7 @@ Simple integration of your culture database into WordPress
 
 Kultur-API is a comprehensive plugin for your website. It is aimed in particular at associations that provide free tickets for events. This plugin is intended to create added value and simplify processes.
 
-Aktuell beinhaltet es folgenden Funktionsumfang:
+It currently includes the following functions:
 
 * Manage categories for events
 * Manage imparting areas
@@ -61,6 +62,12 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 
 
 == Changelog ==
+
+= 1.1.1 =
+
+- fix: some php warning with PHP 8.1 and Above
+- fix: some language strings were not translated
+- change: add Contact Form 7 as required dependency
 
 = 1.1.0 =
 
