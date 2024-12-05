@@ -1,0 +1,34 @@
+{
+ 	"name": "kulturwunsch/kultur-api-for-wp",
+ 	"description": "",
+ 	"version": "1.2.0",
+ 	"keywords": [
+	],
+	"authors": [
+        {
+            "name": "Hannes Deeken",
+            "email": "hannes.deeken@kulturwunsch.de",
+            "homepage": "https://wunschevents.de",
+            "role": "Developer"
+        }
+	],
+	"support": {
+        "email": "it@kulturwunsch.de",
+        "issues": "https://github.com/kulturwunsch/Kultur-API-for-WP/issues"
+    },
+	"homepage": "https://kulturwunsch.de",
+	"license": "proprietary",
+	"type": "wordpress-plugin",
+	"require-dev": {
+		"phpunit/phpunit": "^9.6",
+		"mockery/mockery": "^1",
+		"phpstan/phpstan": "^1",
+		"phpstan/phpstan-phpunit": "^1",
+		"phpstan/phpstan-deprecation-rules": "^1",
+		"phpstan/phpstan-strict-rules": "^1",
+    	"szepeviktor/phpstan-wordpress": "^1"
+	},
+	"config": {
+		"preferred-install": "dist"
+	}
+}

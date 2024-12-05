@@ -10,3 +10,9 @@
 /.distignore export-ignore
 /README.md export-ignore
 /readme.txt export-ignore
+/output.log export-ignore
+/DOCKER_ENV export-ignore
+/docker_tag export-ignore
+/phpstan.neon export-ignore
+/composer.json export-ignore
+/composer.json export-ignore

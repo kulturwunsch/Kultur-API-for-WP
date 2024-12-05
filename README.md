@@ -27,6 +27,8 @@ Do you like the plugin and would you like to support the creators in continually
 		- [WordPress standards](#wordpress-standards)
 		- [Use of individual post types](#use-of-individual-post-types)
 		- [Use of Taxonomy](#use-of-taxonomy)
+		- [Available shortcodes](#available-shortcodes)
+			- [Shortcode ka4wp_partners](#shortcode-ka4wp_partners)
 		- [Contact form 7](#contact-form-7)
 			- [Form field datasets](#form-field-datasets)
 			- [Disable email sending](#disable-email-sending)
@@ -74,6 +76,7 @@ If you have ideas or suggestions, please write them in the Issues section or cre
 - Integrate external API (WUNSCH.events or custom)
 - Manage event categories
 - Manage imparting areas
+- Manage partners
 - Contact Form 7 integration
 	- Deactivate email sending
 	- Transfer forms via API (New cultural guests and new organization members)
@@ -167,6 +170,29 @@ This plugin uses the Taxonomy function to store and provide standardized data. A
 |--------------------|---------------------------------------------------------|-------------------------------------------------------|
 | `eventcategories`  | Saves all event categories and a description of them    | api_managed, enabled, timestamp, shortcut, databse_id |
 | `impartingareas`   | Saves all imparting areas and a description of it       | api_managed, enabled, timestamp, databse_id           |
+| `partners`         | Saves api-enabled partners with details (adress f.e.)   | api_managed, enabled, timestamp, databse_id           |
+
+
+### Available shortcodes
+
+Shortcodes are a good way to display data with a simple piece of code. With options inside the syntax is the view manageble. At the moment only the `ka4wp_partners` shortcode is available.
+
+#### Shortcode ka4wp_partners
+
+The table show you the options how to configure the shortcode:
+
+| Datafield      | Default value     | Possible values                               | Description                                                 |
+|----------------|-------------------------------------------------------------------|-------------------------------------------------------------|
+| `partnertype`  | \* (All partners) | 'organizer', 'socialpartner', 'otherpartners' | Which type of partner should queried from the database      |
+| `style`        | grid              | 'grid' or 'table'                             | Which design should used (table oder flexible grid)         |
+| `view_logo`    | 1                 | 1 or 0                                        | If the partner logo should displayed                        |
+| `view_phone`   | 1                 | 1 or 0                                        | If the partners phone number should displayed               |
+| `view_adress`  | 1                 | 1 or 0                                        | If the partners postal adress should displayed              |
+| `view_button`  | 1                 | 1 or 0                                        | If a button to visit the partners website should displayed  |
+| `grid-xs`      | 2                 | 1 or 0                                        | How much objects should displayed in a xs grid per row      |
+| `grid-sm`      | 2                 | 1 or 0                                        | How much objects should displayed in a sm grid per row      |
+| `grid-lg`      | 2                 | 1 or 0                                        | How much objects should displayed in a lg grid per row      |
+| `grid-xl`      | 2                 | 1 or 0                                        | How much objects should displayed in a xl grid per row      |
 
 
 ### Contact form 7
