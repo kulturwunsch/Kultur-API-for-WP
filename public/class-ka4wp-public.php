@@ -51,7 +51,6 @@ class KA4WP_Public {
 
 		$this->ka4wp = $ka4wp;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -61,7 +60,7 @@ class KA4WP_Public {
 	 */
 	public function enqueue_styles() {
 
-		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-public.min.css', array(), $this->version, 'all' );
 
 	}
 
@@ -72,7 +71,7 @@ class KA4WP_Public {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-public.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-public.min.js', array( 'jquery' ), $this->version, false );
 
 	}
 	
@@ -103,5 +102,24 @@ class KA4WP_Public {
 		}
 		return $data;
 	}
-
+	
+	/**
+	 * Load custom options for contact form 7 option fields
+	 *
+	 * @since     1.2.0
+	 * @return    array
+	 */
+	public function ka4wp_load_shortcode_partners($atts) {
+		$shortcode_options = shortcode_atts([
+								'partnertype' => '*',
+								'style' => 'grid',
+								'view_logo' => '1',
+								'view_phone' => '1',
+								'view_email' => '1',
+								'view_adress' => '1',
+								'view_button' => '1',
+							], $atts, 'ka4wp_partners');
+		
+		return include dirname(__FILE__).'/partials/ka4wp_shortcode_partners.php';
+	}
 }

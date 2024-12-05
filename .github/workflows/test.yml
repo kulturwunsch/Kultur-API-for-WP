@@ -1,0 +1,73 @@
+name: Continious Integration 
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!master'
+  pull_request:
+    branches:
+      - 'master'
+
+jobs:
+  matrixtest:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['8.0', '8.1', '8.2', '8.3']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+      - name: Check PHP Syntax
+        run: |
+          find . -type f -name '*.php' -print0 | xargs -0 -n1 -P4 php -l -n | (! grep -v 'No syntax errors detected')
+  unittest:
+    runs-on: ubuntu-latest
+    needs: ['matrixtest']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
+      - name: Install Composer
+        uses: php-actions/composer@v6
+        with:
+          php_version: "8.0"
+          dev: yes      
+      - name: Run PHPStan Code-Tests
+        uses: php-actions/phpstan@v3
+        with:
+          path: ./
+          level: 6
+          php_version: "8.0"
+  build:
+    name: Test package building
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Minify public JavaScript files
+        uses: nizarmah/auto-minify@v3
+        with:
+          directory: 'public/js'
+          overwrite: true
+      - name: Minify public Stylesheets
+        uses: nizarmah/auto-minify@v3
+        with:
+          directory: 'public/css'
+          overwrite: true
+      - name: Minify admin JavaScript files
+        uses: nizarmah/auto-minify@v3
+        with:
+          directory: 'admin/js'
+          overwrite: true
+      - name: Minify admin Stylesheets
+        uses: nizarmah/auto-minify@v3
+        with:
+          directory: 'admin/css'
+          overwrite: true

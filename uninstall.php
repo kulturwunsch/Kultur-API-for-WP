@@ -33,7 +33,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	if(empty(get_option('ka4wp_prevent_deletion')))
 	{
 		//define settings
-		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_prevent_deletion');
+		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default');
 
 		// Clear up our settings
 		foreach ($settingOptions as $settingName) {
@@ -65,6 +65,16 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 				wp_delete_term($category->term_id, 'impartingareas');
 			}
 		}
+		
+		register_taxonomy('partners', 'ka4wp');
+		$terms = get_terms(['taxonomy' => 'partners', 'hide_empty' => false]);
+		if(!empty($terms))
+		{
+			foreach($terms as $category)
+			{
+				wp_delete_term($category->term_id, 'partners');
+			}
+		}
 
 		// unscheduled load event categories		
 		if(wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
@@ -76,6 +86,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		if(wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
 		{
 			wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
+		}
+		
+		// unscheduled load partners	
+		if(wp_next_scheduled('ka4wp_cron_api_update_partners'))
+		{
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_partners');
 		}
 		
 		//delete all custom posts

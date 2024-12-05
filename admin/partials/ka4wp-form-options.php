@@ -120,7 +120,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 							}
 							?>
 						</select>
-						<?php esc_html_e('Select your predefined mapping','kultur-api-for-wp'); ?> <?php echo esc_html($wpcf7_api_data["predefined-mapping"]); ?>
+						<?php esc_html_e('Select your predefined mapping','kultur-api-for-wp'); ?> <?php echo esc_html($wpcf7_api_data["predefined-mapping"] ?? 0); ?>
 					</label>
 					<p class="description"><?php esc_html_e('You can select a predefined mapping or enter all mappings manually.','kultur-api-for-wp') ?></p>
 				</div>	
@@ -163,7 +163,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						<label for="wpcf7-field-mapping-<?php echo esc_html($ka4wp_form_field_key); ?>">
 							<?php echo esc_html($ka4wp_form_field_key); ?> (<?php echo esc_html($ka4wp_form_field_value); ?>)
 							<select id="wpcf7-field-mapping-<?php echo esc_html($ka4wp_form_field_key); ?>" name="wpcf7-ka4wp[mapping-<?php echo esc_html($ka4wp_form_field_key); ?>]" class="predefined-field-mapping">
-								<option value="" <?php selected('', $ka4wp_form_field_value, '', false); ?>><?php esc_html_e("Don't send this field to endpoint via API", 'kultur-api-for-wp' ); ?></option>
+								<option value="" <?php selected('', $ka4wp_form_field_value ?? '', false); ?>><?php esc_html_e("Don't send this field to endpoint via API", 'kultur-api-for-wp' ); ?></option>
 								<?php
 								if(!empty($defaultMappings))
 								{
