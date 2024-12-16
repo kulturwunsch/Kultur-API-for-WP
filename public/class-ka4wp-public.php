@@ -110,6 +110,7 @@ class KA4WP_Public {
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.2.0
+	 * @param array $atts Given attributes for shortcode customization
 	 *
 	 * @return    string
 	 */

@@ -41,6 +41,8 @@ define( 'KA4WP_VERSION', '1.3.0' );
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-ka4wp-activator.php
+ *
+ * @return void
  */
 function ka4wp_activate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-activator.php';
@@ -50,6 +52,8 @@ function ka4wp_activate() {
 /**
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-ka4wp-deactivator.php
+ *
+ * @return void
  */
 function ka4wp_deactivate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-deactivator.php';
@@ -73,6 +77,8 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp.php';
  * not affect the page life cycle.
  *
  * @since    1.0.0
+ *
+ * @return void
  */
 function ka4wp_run() {
 
