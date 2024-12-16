@@ -84,6 +84,13 @@ class KA4WP_Admin {
 		);
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-admin.min.js', array( 'jquery' ), $this->version, false );
 		wp_localize_script($this->ka4wp, 'ajax_object', $data);
+		
+		$lang = array(
+			'upload_image' => __('Upload image', 'kultur-api-for-wp'),
+			'use_image' => __('Use this image', 'kultur-api-for-wp'),
+			'insert_image' => __('Insert image', 'kultur-api-for-wp'),
+		);
+		wp_localize_script($this->ka4wp, 'lang', $lang);
 	}
 	
 	/**
@@ -363,23 +370,46 @@ class KA4WP_Admin {
 		
 		foreach($categories as $category)
 		{
-			$term = term_exists(sanitize_text_field($category['name']), 'eventcategories');
-			if(!empty($term['term_id']))
+			if(empty($category['id']) || empty($category['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled']));
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp']));
-				update_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($category['id']));
-				wp_update_term($term['term_id'], 'eventcategories', array('description'=> sanitize_text_field($category['description'])));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'eventcategories',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($category['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'eventcategories', array('name' => sanitize_text_field($category['name']), 'description'=> sanitize_text_field($category['description'] ?? '')));
+					update_term_meta($term->term_id, 'enabled', sanitize_text_field($category['enabled'] ?? 1));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U'))));
+					update_term_meta($term->term_id, 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
+				}
 			} else {
-				$term = wp_insert_term(sanitize_text_field($category['name']), 'eventcategories', array('description'=> sanitize_text_field($category['description'])));
+				$term = wp_insert_term(sanitize_text_field($category['name']), 'eventcategories', array('description'=> sanitize_text_field($category['description'] ?? '')));
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled']));
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp']));
-					add_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut']));
+					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled'] ?? 1));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U'))));
+					add_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($category['id']));
 				}
 			}
@@ -398,21 +428,44 @@ class KA4WP_Admin {
 		
 		foreach($areas as $area)
 		{
-			$term = term_exists(sanitize_text_field($area['name']), 'impartingareas');
-			if(!empty($term['term_id']))
+			if(empty($area['id']) || empty($area['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled']));
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($area['id']));
-				wp_update_term($term['term_id'], 'impartingareas', array('description'=> sanitize_text_field($area['description'])));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'impartingareas',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($area['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'impartingareas', array('name' => sanitize_text_field($area['name']), 'description'=> sanitize_text_field($area['description'] ?? '')));
+					update_term_meta($term->term_id, 'enabled', sanitize_text_field($area['enabled'] ?? 1));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U'))));
+				}
 			} else {
-				$term = wp_insert_term(sanitize_text_field($area['name']), 'impartingareas', array('description'=> sanitize_text_field($area['description'])));
+				$term = wp_insert_term(sanitize_text_field($area['name']), 'impartingareas', array('description'=> sanitize_text_field($area['description'] ?? '')));
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled']));
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp']));
+					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled'] ?? 1));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U')));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($area['id']));
 				}
 			}
@@ -431,41 +484,67 @@ class KA4WP_Admin {
 		
 		foreach($partners as $partner)
 		{
-			$term = term_exists(sanitize_text_field($partner['organizationname']), 'partners');
-			if(!empty($term['term_id']))
+			if(empty($partner['id']) || empty($partner['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($partner['id']));
-				update_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer']));
-				update_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner']));
-				update_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner']));
-				update_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder']));
-				update_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street']));
-				update_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber']));
-				update_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode']));
-				update_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city']));
-				update_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district']));
-				update_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber']));
-				update_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website']));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'partners',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($partner['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'partners', array(
+							'name' => sanitize_text_field($partner['organizationname']),
+						));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U'))));
+					update_term_meta($term->term_id, 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
+					update_term_meta($term->term_id, 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
+					update_term_meta($term->term_id, 'otherpartner', sanitize_text_field($partner['otherpartner'] ?? 0));
+					update_term_meta($term->term_id, 'organisation_holder', sanitize_text_field($partner['organisation_holder'] ?? ''));
+					update_term_meta($term->term_id, 'street', sanitize_text_field($partner['street'] ?? ''));
+					update_term_meta($term->term_id, 'streetnumber', sanitize_text_field($partner['streetnumber'] ?? ''));
+					update_term_meta($term->term_id, 'zipcode', sanitize_text_field($partner['zipcode'] ?? ''));
+					update_term_meta($term->term_id, 'city', sanitize_text_field($partner['city'] ?? ''));
+					update_term_meta($term->term_id, 'district', sanitize_text_field($partner['district'] ?? ''));
+					update_term_meta($term->term_id, 'phonenumber', sanitize_text_field($partner['phonenumber'] ?? ''));
+					update_term_meta($term->term_id, 'website', sanitize_text_field($partner['website'] ?? ''));
+				}
 			} else {
 				$term = wp_insert_term(sanitize_text_field($partner['organizationname']), 'partners', array());
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp']));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U'))));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($partner['id']));
-					add_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer']));
-					add_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner']));
-					add_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner']));
-					add_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder']));
-					add_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street']));
-					add_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber']));
-					add_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode']));
-					add_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city']));
-					add_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district']));
-					add_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber']));
-					add_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website']));
+					add_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
+					add_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
+					add_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner'] ?? 0));
+					add_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder'] ?? ''));
+					add_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street'] ?? ''));
+					add_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber'] ?? ''));
+					add_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode'] ?? ''));
+					add_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city'] ?? ''));
+					add_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district'] ?? ''));
+					add_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber'] ?? ''));
+					add_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website'] ?? ''));
 				}
 			}
 		}
@@ -494,8 +573,6 @@ class KA4WP_Admin {
 			));
 			
 		$keepDeletedEntries = get_option('ka4wp_api_keep_deleted_'.$taxonomy, '0') ?? '0';
-		error_log('[KA4WP]: CleanUp: Delete setting is: '.$keepDeletedEntries);
-		error_log('[KA4WP]: CleanUp: Found entries in response: '.count(array_filter(array_column($data, 'id'))));
 		
 		if(!empty($terms) && (count(array_filter(array_column($data, 'id'))) > 0 || empty($data)))
 		{
@@ -524,13 +601,13 @@ class KA4WP_Admin {
 		if(is_multisite()){
 			if(!is_plugin_active_for_network('contact-form-7/wp-contact-form-7.php')){
 				echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
 			}
 		}else{
 			if(!is_plugin_active('contact-form-7/wp-contact-form-7.php')){
       			echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
     		}
     	}
@@ -698,7 +775,7 @@ class KA4WP_Admin {
 	public function ka4wp_metabox(){
 	    add_meta_box(
 	        'cf7anyapi-setting',
-	        __( 'Kultur-API Setting', 'kultur-api-for-wp' ),
+	        __( 'Settings for Kultur-API integration', 'kultur-api-for-wp' ),
 	        array($this,'ka4wp_api_settings'),
 	        'ka4wp'
 	    );
@@ -813,7 +890,7 @@ class KA4WP_Admin {
 	 */
 	function ka4wp_save_custom_taxonomy_partners($term_id)
 	{
-		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id']));	
+		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id'] ?? 0));	
 	}
 	
 	/**
@@ -1213,7 +1290,7 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function save_contact_form_API_details($contact_form) {
-		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce']))))
+		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
 			{
