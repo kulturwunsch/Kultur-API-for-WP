@@ -333,6 +333,8 @@ class KA4WP_Admin {
 	 * Saves the API response event categories in taxonomy database
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_eventcategories() {
 		
@@ -360,6 +362,8 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_impartingareas() {
 		
@@ -387,6 +391,8 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.2.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_partners() {
 		
@@ -414,6 +420,9 @@ class KA4WP_Admin {
 	 * Saves the API response eventcategories in taxonomy database
 	 *
 	 * @since    1.0.0
+	 * @param array $categories Event categories received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_eventcategories($categories) {
 		
@@ -472,6 +481,9 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.0.0
+	 * @param array $areas IMparting areas received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_impartingareas($areas) {
 		
@@ -528,6 +540,9 @@ class KA4WP_Admin {
 	 * Saves the API response partners in taxonomy database
 	 *
 	 * @since    1.2.0
+	 * @param array $partners Partners received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_partners($partners) {
 		
@@ -606,6 +621,10 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.1.0
+	 * @param string $taxonomy The taxonomy to clean up
+	 * @param array $data The data received from the api call
+	 *
+	 * @return void
 	 */
 	private function ka4wp_cleanup_response_taxonomies($taxonomy, $data)
 	{
@@ -645,6 +664,8 @@ class KA4WP_Admin {
 	 * Check Plugin Dependencies
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_verify_dependencies(){
 		if(is_multisite()){
@@ -666,6 +687,8 @@ class KA4WP_Admin {
 	 * Register the Custom Post Type
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_custom_post_type(){
 		$supports = array(
@@ -706,6 +729,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_eventcategories_taxonomy(){
 
@@ -744,6 +769,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_impartingareas_taxonomy(){
 
@@ -782,6 +809,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_partners_taxonomy(){
 
@@ -820,6 +849,8 @@ class KA4WP_Admin {
 	 * Register the Custom Meta Boxes
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_metabox(){
 	    add_meta_box(
@@ -834,6 +865,10 @@ class KA4WP_Admin {
 	 * Add settings links to plugin overview
 	 *
 	 * @since    1.0.0
+	 * @param array $links Array with existing plugin info links
+	 * @param string $file Path of the plugin file
+	 *
+	 * @return array $links Array with additional links
 	 */
 	public function ka4wp_add_settings_link($links, $file){
 		if($file === 'kultur-api-for-wp/kultur-api-for-wp.php' && current_user_can('manage_options')){
@@ -850,6 +885,8 @@ class KA4WP_Admin {
 	 * Register the Submenu
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_submenu(){
 
@@ -876,6 +913,8 @@ class KA4WP_Admin {
 	 * Register the Submenu page "Settings"
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_submenu_settings_callback(){
 		include dirname(__FILE__).'/partials/ka4wp-admin-options.php';
@@ -885,6 +924,8 @@ class KA4WP_Admin {
 	 * Register the Submenu page "Documentation"
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_submenu_docs_callback(){
 		include dirname(__FILE__).'/partials/placeholder.php';
@@ -894,6 +935,9 @@ class KA4WP_Admin {
 	 * Register the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
+	 * @param array $panels Array with the existing CF7 panels
+	 *
+	 * @return array $panels The full panels for CF7 integration
 	 */
 	public function ka4wp_cf7_add_api_integration($panels){
 		$integration_panel = array(
@@ -909,6 +953,8 @@ class KA4WP_Admin {
 	 * Display the CF7-API integration page
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_settings_callback($post){
 		include dirname(__FILE__).'/partials/ka4wp-form-options.php';
@@ -938,6 +984,9 @@ class KA4WP_Admin {
 	 * Manage taxonomy partners fields
 	 *
 	 * @since    1.2.0
+	 * @param int $term_id Id of the given term
+	 *
+	 * @return void
 	 */
 	function ka4wp_save_custom_taxonomy_partners($term_id)
 	{
@@ -1401,6 +1450,8 @@ class KA4WP_Admin {
 	 * API Endpoint to load selected predefined mapping
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function ka4wp_get_predefined_mapping()
 	{	
@@ -1754,6 +1805,10 @@ class KA4WP_Admin {
 	 * Child function to convert API response into correct format
 	 *
 	 * @since    1.0.0
+	 * @param array $response Data to get from api call
+	 * @param int $log_id The id of the operation to log results
+	 *
+	 * @return array 
 	 */
 	public static function ka4wp_api_handle_result($response, $log_id = 0) {
 		
