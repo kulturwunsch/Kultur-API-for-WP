@@ -399,7 +399,7 @@ class KA4WP_Admin {
 				{
 					wp_update_term($term->term_id, 'eventcategories', array('name' => sanitize_text_field($category['name']), 'description'=> sanitize_text_field($category['description'] ?? '')));
 					update_term_meta($term->term_id, 'enabled', sanitize_text_field($category['enabled'] ?? 1));
-					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U'))));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U')));
 					update_term_meta($term->term_id, 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
 				}
 			} else {
@@ -408,7 +408,7 @@ class KA4WP_Admin {
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
 					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled'] ?? 1));
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U'))));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U')));
 					add_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($category['id']));
 				}
@@ -457,7 +457,7 @@ class KA4WP_Admin {
 				{
 					wp_update_term($term->term_id, 'impartingareas', array('name' => sanitize_text_field($area['name']), 'description'=> sanitize_text_field($area['description'] ?? '')));
 					update_term_meta($term->term_id, 'enabled', sanitize_text_field($area['enabled'] ?? 1));
-					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U'))));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U')));
 				}
 			} else {
 				$term = wp_insert_term(sanitize_text_field($area['name']), 'impartingareas', array('description'=> sanitize_text_field($area['description'] ?? '')));
@@ -514,7 +514,7 @@ class KA4WP_Admin {
 					wp_update_term($term->term_id, 'partners', array(
 							'name' => sanitize_text_field($partner['organizationname']),
 						));
-					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U'))));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U')));
 					update_term_meta($term->term_id, 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
 					update_term_meta($term->term_id, 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
 					update_term_meta($term->term_id, 'otherpartner', sanitize_text_field($partner['otherpartner'] ?? 0));
@@ -532,7 +532,7 @@ class KA4WP_Admin {
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U'))));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U')));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($partner['id']));
 					add_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
 					add_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
