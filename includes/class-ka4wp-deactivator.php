@@ -28,6 +28,8 @@ class KA4WP_Deactivator {
 	 * Un-schedule running cron jobs and shutdown mainly functions
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function deactivate() {
 				
@@ -42,7 +44,12 @@ class KA4WP_Deactivator {
 		{
 			wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
 		}
-
+		
+		// unscheduled load partners		
+		if(wp_next_scheduled('ka4wp_cron_api_update_partners'))
+		{
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_partners');
+		}
 	}
 
 }

@@ -57,29 +57,32 @@ class KA4WP_Public {
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-public.min.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-public.min.js', array( 'jquery' ), $this->version, false );
-
 	}
 	
 	/**
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.0.0
-	 * @return    array
+	 *
+	 * @return    array $data
 	 */
 	public function ka4wP_load_cf7_custom_options($data, $options, $args) {
 		$data = [];
@@ -107,7 +110,8 @@ class KA4WP_Public {
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.2.0
-	 * @return    array
+	 *
+	 * @return    string
 	 */
 	public function ka4wp_load_shortcode_partners($atts) {
 		$shortcode_options = shortcode_atts([

@@ -58,17 +58,20 @@ class KA4WP_Admin {
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-admin.min.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 		
@@ -97,6 +100,8 @@ class KA4WP_Admin {
 	 * Update and install plugin database sources
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_plugin() {
 		$oldVersion = get_option( 'ka4wp_plugin_version', '0.9' );
@@ -116,6 +121,8 @@ class KA4WP_Admin {
      * On plugin load, create or update database table
      *
      * @since    1.0.0
+	 *
+	 * @return void
      */
     private function ka4wp_install_db() {
 
@@ -125,6 +132,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_eventcategories" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_eventcategories($newValue) {
 		
@@ -135,6 +145,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_eventcategories" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_eventcategories($oldValue, $newValue) {
 		
@@ -153,6 +167,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_eventcategories_recurrence" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_eventcategories_recurrence($newValue) {
 		
@@ -163,6 +180,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_eventcategories_recurrence" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_eventcategories_recurrence($oldValue, $newValue) {
 		
@@ -178,6 +199,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_impartingareas" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_impartingareas($newValue) {
 		
@@ -188,6 +212,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_impartingareas" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_impartingareas($oldValue, $newValue) {
 		
@@ -206,6 +234,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_impartingareas_recurrence" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_impartingareas_recurrence($newValue) {
 		
@@ -216,6 +247,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_impartingareas_recurrence" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_impartingareas_recurrence($oldValue, $newValue) {
 		
@@ -231,6 +266,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_partners" added.
 	 *
 	 * @since    1.2.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_partners($newValue) {
 		
@@ -241,6 +279,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_partners" are modified
 	 *
 	 * @since    1.2.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_partners($oldValue, $newValue) {
 		
@@ -259,6 +301,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_partners_recurrence" added.
 	 *
 	 * @since    1.2.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_partners_recurrence($newValue) {
 		
@@ -269,6 +314,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_partners_recurrence" are modified
 	 *
 	 * @since    1.2.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_partners_recurrence($oldValue, $newValue) {
 		
@@ -869,6 +918,8 @@ class KA4WP_Admin {
 	 * Registered Metaboxes Fields
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function ka4wp_api_settings() {
 		include dirname(__FILE__).'/partials/ka4wp-admin-display.php';
@@ -897,6 +948,8 @@ class KA4WP_Admin {
 	 * Register settings for options page.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_settings() {
 		
@@ -1083,13 +1136,15 @@ class KA4WP_Admin {
 					'name' => 'ka4wp_partnerlogo_default',
 				]
 			);
-
 	}
 	
 	/**
 	 * Render possible posttypes from APIs
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_publish_api($args) {
 		
@@ -1117,6 +1172,9 @@ class KA4WP_Admin {
 	 * Render possible cron recurrence settings
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_cron_recurrence($args) {
 		
@@ -1136,6 +1194,9 @@ class KA4WP_Admin {
 	 * Render image gallery select settings
 	 *
 	 * @since    1.2.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_image_gallery_select($args) {
 		
@@ -1161,6 +1222,9 @@ class KA4WP_Admin {
 	 * Render simple checkbox settings
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_checkbox($args) {
 		
@@ -1175,6 +1239,9 @@ class KA4WP_Admin {
 	 * Validate settings if selected post is published
 	 *
 	 * @since    1.2.0
+	 * @param string $input Setting value after changing
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_validate_post_published($input) {
 
@@ -1185,6 +1252,9 @@ class KA4WP_Admin {
 	 * Validate settings if the cron recurrence is valid
 	 *
 	 * @since    1.2.0
+	 * @param string $input Setting value after changing
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_validate_cron_recurrence($input) {
 
@@ -1267,7 +1337,6 @@ class KA4WP_Admin {
 						update_post_meta($post_id, 'check_result', 0);
 						update_post_meta($post_id, 'check_result_message', !empty($response['error']) ? sanitize_text_field($response['error']) : sanitize_text_field($response['body']));
 					}
-
 				}
 			}
 		}
@@ -1354,10 +1423,8 @@ class KA4WP_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function ka4wp_get_endpoint_defaults($post_id = null)
-	{	
-		$post_id ?? 0;
-		
+	public static function ka4wp_get_endpoint_defaults($post_id = 0)
+	{			
 		$options = [];
 		switch(get_post_meta($post_id, 'ka4wp_api_type', true))
 		{
@@ -1439,8 +1506,6 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function ka4wp_prepare_formdata_for_api($WPCF7_ContactForm) {
-		
-		error_log('API-Data: Verarbeitung gestartet');
 		
 		//prepare upload directory
 		$uploadDir = wp_upload_dir();
@@ -1632,7 +1697,7 @@ class KA4WP_Admin {
       	}
 		
 		if(!empty($api_options['basic_auth'])){
-        	$args['headers']['Authorization'] = 'Basic ' . base64_encode($api_options['basic_auth_username'] ?? ''.':'.$api_options['basic_auth_password'] ?? '');
+        	$args['headers']['Authorization'] = 'Basic ' . base64_encode($api_options['basic_auth_username'] ?: ''.':'.$api_options['basic_auth_password'] ?: '');
       	}
       
       	if(!empty($api_options['bearer_auth'])){
