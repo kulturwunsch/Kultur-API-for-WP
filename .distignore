@@ -7,8 +7,9 @@
 .distignore
 .gitignore
 .gitattributes
-.phpstan.neon
-.DOCKER_ENV
-.docker_tag
-.output.log
-.composer.json
+phpstan.neon
+DOCKER_ENV
+docker_tag
+output.log
+composer.json
+README.md

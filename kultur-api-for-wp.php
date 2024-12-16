@@ -16,7 +16,7 @@
  * Plugin Name:       Kultur-API for WP
  * Plugin URI:        https://github.com/kulturwunsch/Kultur-API-for-WP
  * Description:       Kultur-API for WP is an extension to digitize the entire process of a cultural impart organization.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            Kulturwunsch Wolfenbüttel e. V.
  * Author URI:        https://kulturwunsch.de
  * License:           GPL-3.0+
@@ -36,11 +36,13 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'KA4WP_VERSION', '1.2.0' );
+define( 'KA4WP_VERSION', '1.3.0' );
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-ka4wp-activator.php
+ *
+ * @return void
  */
 function ka4wp_activate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-activator.php';
@@ -50,6 +52,8 @@ function ka4wp_activate() {
 /**
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-ka4wp-deactivator.php
+ *
+ * @return void
  */
 function ka4wp_deactivate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp-deactivator.php';
@@ -73,11 +77,15 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-ka4wp.php';
  * not affect the page life cycle.
  *
  * @since    1.0.0
+ *
+ * @return void
  */
 function ka4wp_run() {
 
 	$plugin = new KA4WP();
 	$plugin->run();
-
+	
+	//Register on Consent API
+	add_filter("wp_consent_api_registered_".plugin_basename(__FILE__), function(){return true;});
 }
 ka4wp_run();

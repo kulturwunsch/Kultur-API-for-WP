@@ -15,4 +15,3 @@
 /docker_tag export-ignore
 /phpstan.neon export-ignore
 /composer.json export-ignore
-/composer.json export-ignore

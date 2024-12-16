@@ -65,6 +65,8 @@ class KA4WP {
 	 * the public-facing side of the site.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		if ( defined( 'KA4WP_VERSION' ) ) {
@@ -78,7 +80,6 @@ class KA4WP {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -97,6 +98,8 @@ class KA4WP {
 	 *
 	 * @since    1.0.0
 	 * @access   private
+	 *
+	 * @return void
 	 */
 	private function load_dependencies() {
 
@@ -134,14 +137,14 @@ class KA4WP {
 	 *
 	 * @since    1.0.0
 	 * @access   private
+	 *
+	 * @return void
 	 */
 	private function set_locale() {
 
 		$plugin_i18n = new KA4WP_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-		#$this->loader->add_action( 'init', $plugin_i18n, 'load_plugin_textdomain' );
-
 	}
 
 	/**
@@ -150,6 +153,8 @@ class KA4WP {
 	 *
 	 * @since    1.0.0
 	 * @access   private
+	 *
+	 * @return void
 	 */
 	private function define_admin_hooks() {
 
@@ -208,6 +213,8 @@ class KA4WP {
 	 *
 	 * @since    1.0.0
 	 * @access   private
+	 *
+	 * @return void
 	 */
 	private function define_public_hooks() {
 
@@ -224,6 +231,8 @@ class KA4WP {
 	 * Run the loader to execute all of the hooks with WordPress.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function run() {
 		$this->loader->run();
@@ -244,6 +253,7 @@ class KA4WP {
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     1.0.0
+	 *
 	 * @return    KA4WP_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader() {
@@ -254,6 +264,7 @@ class KA4WP {
 	 * Retrieve the version number of the plugin.
 	 *
 	 * @since     1.0.0
+	 *
 	 * @return    string    The version number of the plugin.
 	 */
 	public function get_version() {
@@ -264,6 +275,9 @@ class KA4WP {
 	 * Save debug logs
 	 *
 	 * @since     1.0.0
+	 * @param string $content Value to be logged
+	 *
+	 * @return void
 	 */
 	public static function debug_log($content) {
 		
@@ -277,9 +291,10 @@ class KA4WP {
 	 * Retrieve the all current Post API metadata
 	 *
 	 * @since     1.0.0
+	 *
 	 * @return    array
 	 */
-	public function ka4wp_get_api_options($post_id) {
+	public function ka4wp_get_api_options($post_id) { #TODO: PHPDoc anpassen
 		global $post;
 		$post_id = $post->ID;
 		$options = [];
@@ -294,8 +309,6 @@ class KA4WP {
 			$options['ka4wp_method'] = get_post_meta($post_id,'ka4wp_method',true);
 			$options['ka4wp_form_field'] = get_post_meta($post_id,'ka4wp_form_field',true);
 			$options['ka4wp_header_request'] = get_post_meta($post_id,'ka4wp_header_request',true);
-			
-			#$options = get_post_meta($post->ID);
 		}
 
 		return $options;
