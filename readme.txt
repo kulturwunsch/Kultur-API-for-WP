@@ -68,8 +68,11 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 
 - translations for languag strings in admin-js are added
 - The Plugin is now registered for WP Consent Api usage
+- adding more Options to configure Partner grid (take at look at our Github documentation)
+- some code improvements
 - change: mapping for external entries intaxoomies changed vom displayname to external_id
 - fix: some Translation issues were fixed
+- fix: the partner api was not correct planned on (de)activation
 
 = 1.2.0 =
 

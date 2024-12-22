@@ -122,7 +122,11 @@ class KA4WP_Public {
 								'view_phone' => '1',
 								'view_email' => '1',
 								'view_adress' => '1',
-								'view_button' => '1',
+								'view_website' => '1',
+								'grid_xs' => '2',
+								'grid_sm' => '3',
+								'grid_lg' => '4',
+								'grid_xl' => '4',
 							], $atts, 'ka4wp_partners');
 		
 		return include dirname(__FILE__).'/partials/ka4wp_shortcode_partners.php';

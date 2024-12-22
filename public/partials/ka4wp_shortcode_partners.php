@@ -40,6 +40,37 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				'meta_query' => $meta_query ?? [],
 			));
 			
+	if(strtolower($shortcode_options['style']) != 'table')
+	{
+		// calculate xs Grid
+		try {
+			$grid_xs = 12 / absint($shortcode_options['grid_xs']);
+		} catch(DivisionByZeroError $e){
+			$grid_xs = 2;
+		}
+		
+		// calculate sm Grid
+		try {
+			$grid_sm = 12 / absint($shortcode_options['grid_sm']);
+		} catch(DivisionByZeroError $e){
+			$grid_sm = 3;
+		}
+		
+		// calculate lg Grid
+		try {
+			$grid_lg = 12 / absint($shortcode_options['grid_lg']);
+		} catch(DivisionByZeroError $e){
+			$grid_lg = 4;
+		}
+		
+		// calculate xl Grid
+		try {
+			$grid_xl = 12 / absint($shortcode_options['grid_xl']);
+		} catch(DivisionByZeroError $e){
+			$grid_xl = 4;
+		}
+	}
+			
 	if(!empty($terms))
 	{
 		if(strtolower($shortcode_options['style']) == 'table')
@@ -58,7 +89,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						<?php if(!empty($shortcode_options['view_phone'])) { ?>
 							<th scope="col"><?php esc_html_e('Phone', 'kultur-api-for-wp' ); ?></th>
 						<?php } ?>
-						<th scope="col"><?php esc_html_e('Website', 'kultur-api-for-wp' ); ?></th>
+						<?php if(!empty($shortcode_options['view_website'])) { ?>
+							<th scope="col"><?php esc_html_e('Website', 'kultur-api-for-wp' ); ?></th>
+						<?php } ?>
 					</tr>
 				</thead>
 				<tbody>
@@ -78,7 +111,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						<?php if(!empty($shortcode_options['view_phone'])) { ?>
 							<td><?php print esc_html($term_meta['phonenumber'][0]); ?></td>
 						<?php } ?>
-						<td><a href="<?php print esc_url($term_meta['website'][0]); ?>" target="_blank"><?php print esc_url($term_meta['website'][0]); ?></a></td>
+						<?php if(!empty($shortcode_options['view_website'])) { ?>
+							<td><a href="<?php print esc_url($term_meta['website'][0]); ?>" target="_blank"><?php print esc_url($term_meta['website'][0]); ?></a></td>
+						<?php } ?>
 					</tr>
 <?php 			}
 ?>
@@ -95,7 +130,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				$image_id = $term_meta['logo_image_id'][0] ?: get_option('ka4wp_partnerlogo_default', '0') ?: 0;
 				$image = wp_get_attachment_image_url($image_id, 'medium');
 ?>
-				<div class="col-xs-6 col-sm-4 col-lg-4 mb-4">
+				<div class="col-xs-<?php print esc_html($grid_xs); ?> col-sm-<?php print esc_html($grid_sm); ?> col-lg-<?php print esc_html($grid_lg); ?> col-xl-<?php print esc_html($grid_xl); ?> mb-4">
 					<div class="card h-100">
 <?php if(!empty($shortcode_options['view_logo']) && !empty($image)) { ?>
 						<img class="card-img-top" src="<?php print $image; ?>">
@@ -117,7 +152,7 @@ if(!empty($shortcode_options['view_phone']) && !empty($term_meta['phonenumber'][
 								<div><span class="fw-bold"><?php esc_html_e('Phone', 'kultur-api-for-wp' ); ?>:</span> <?php print esc_html($term_meta['phonenumber'][0]); ?></div>
 <?php } ?>
 							</div>
-<?php if(!empty($shortcode_options['view_button']) && !empty($term_meta['website'][0])) { ?>
+<?php if(!empty($shortcode_options['view_website']) && !empty($term_meta['website'][0])) { ?>
 							<a href="<?php print esc_url($term_meta['website'][0]); ?>" class="wp-block-button__link wp-element-button" target="_blank"><?php esc_html_e('Open Website', 'kultur-api-for-wp' ); ?></a>
 <?php } ?>
 						</div>
