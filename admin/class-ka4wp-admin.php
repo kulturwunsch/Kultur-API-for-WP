@@ -58,17 +58,20 @@ class KA4WP_Admin {
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-admin.min.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 		
@@ -84,12 +87,21 @@ class KA4WP_Admin {
 		);
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-admin.min.js', array( 'jquery' ), $this->version, false );
 		wp_localize_script($this->ka4wp, 'ajax_object', $data);
+		
+		$lang = array(
+			'upload_image' => __('Upload image', 'kultur-api-for-wp'),
+			'use_image' => __('Use this image', 'kultur-api-for-wp'),
+			'insert_image' => __('Insert image', 'kultur-api-for-wp'),
+		);
+		wp_localize_script($this->ka4wp, 'lang', $lang);
 	}
 	
 	/**
 	 * Update and install plugin database sources
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_plugin() {
 		$oldVersion = get_option( 'ka4wp_plugin_version', '0.9' );
@@ -109,6 +121,8 @@ class KA4WP_Admin {
      * On plugin load, create or update database table
      *
      * @since    1.0.0
+	 *
+	 * @return void
      */
     private function ka4wp_install_db() {
 
@@ -118,6 +132,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_eventcategories" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_eventcategories($newValue) {
 		
@@ -128,6 +145,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_eventcategories" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_eventcategories($oldValue, $newValue) {
 		
@@ -146,6 +167,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_eventcategories_recurrence" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_eventcategories_recurrence($newValue) {
 		
@@ -156,6 +180,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_eventcategories_recurrence" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_eventcategories_recurrence($oldValue, $newValue) {
 		
@@ -171,6 +199,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_impartingareas" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_impartingareas($newValue) {
 		
@@ -181,6 +212,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_impartingareas" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_impartingareas($oldValue, $newValue) {
 		
@@ -199,6 +234,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_impartingareas_recurrence" added.
 	 *
 	 * @since    1.0.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_impartingareas_recurrence($newValue) {
 		
@@ -209,6 +247,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_impartingareas_recurrence" are modified
 	 *
 	 * @since    1.0.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_impartingareas_recurrence($oldValue, $newValue) {
 		
@@ -224,6 +266,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_partners" added.
 	 *
 	 * @since    1.2.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_partners($newValue) {
 		
@@ -234,6 +279,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_partners" are modified
 	 *
 	 * @since    1.2.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_partners($oldValue, $newValue) {
 		
@@ -252,6 +301,9 @@ class KA4WP_Admin {
 	 * Run after settings "api_receive_partners_recurrence" added.
 	 *
 	 * @since    1.2.0
+	 * @param string $newValue The new added setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_create_settings_api_receive_partners_recurrence($newValue) {
 		
@@ -262,6 +314,10 @@ class KA4WP_Admin {
 	 * Run after settings section "api_receive_partners_recurrence" are modified
 	 *
 	 * @since    1.2.0
+	 * @param string $oldValue The setting value before edit
+	 * @param string $newValue The new changed setting value
+	 *
+	 * @return void
 	 */
 	public function ka4wp_update_settings_api_receive_partners_recurrence($oldValue, $newValue) {
 		
@@ -277,6 +333,8 @@ class KA4WP_Admin {
 	 * Saves the API response event categories in taxonomy database
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_eventcategories() {
 		
@@ -304,6 +362,8 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_impartingareas() {
 		
@@ -331,6 +391,8 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.2.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_request_update_partners() {
 		
@@ -358,28 +420,54 @@ class KA4WP_Admin {
 	 * Saves the API response eventcategories in taxonomy database
 	 *
 	 * @since    1.0.0
+	 * @param array $categories Event categories received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_eventcategories($categories) {
 		
 		foreach($categories as $category)
 		{
-			$term = term_exists(sanitize_text_field($category['name']), 'eventcategories');
-			if(!empty($term['term_id']))
+			if(empty($category['id']) || empty($category['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled']));
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp']));
-				update_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($category['id']));
-				wp_update_term($term['term_id'], 'eventcategories', array('description'=> sanitize_text_field($category['description'])));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'eventcategories',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($category['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'eventcategories', array('name' => sanitize_text_field($category['name']), 'description'=> sanitize_text_field($category['description'] ?? '')));
+					update_term_meta($term->term_id, 'enabled', sanitize_text_field($category['enabled'] ?? 1));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U')));
+					update_term_meta($term->term_id, 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
+				}
 			} else {
-				$term = wp_insert_term(sanitize_text_field($category['name']), 'eventcategories', array('description'=> sanitize_text_field($category['description'])));
+				$term = wp_insert_term(sanitize_text_field($category['name']), 'eventcategories', array('description'=> sanitize_text_field($category['description'] ?? '')));
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled']));
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp']));
-					add_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut']));
+					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($category['enabled'] ?? 1));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($category['timestamp'] ?? current_time('U')));
+					add_term_meta($term['term_id'], 'shortcut', sanitize_text_field($category['shortcut'] ?? ''));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($category['id']));
 				}
 			}
@@ -393,26 +481,52 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.0.0
+	 * @param array $areas IMparting areas received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_impartingareas($areas) {
 		
 		foreach($areas as $area)
 		{
-			$term = term_exists(sanitize_text_field($area['name']), 'impartingareas');
-			if(!empty($term['term_id']))
+			if(empty($area['id']) || empty($area['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled']));
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($area['id']));
-				wp_update_term($term['term_id'], 'impartingareas', array('description'=> sanitize_text_field($area['description'])));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'impartingareas',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($area['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'impartingareas', array('name' => sanitize_text_field($area['name']), 'description'=> sanitize_text_field($area['description'] ?? '')));
+					update_term_meta($term->term_id, 'enabled', sanitize_text_field($area['enabled'] ?? 1));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U')));
+				}
 			} else {
-				$term = wp_insert_term(sanitize_text_field($area['name']), 'impartingareas', array('description'=> sanitize_text_field($area['description'])));
+				$term = wp_insert_term(sanitize_text_field($area['name']), 'impartingareas', array('description'=> sanitize_text_field($area['description'] ?? '')));
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled']));
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp']));
+					add_term_meta($term['term_id'], 'enabled', sanitize_text_field($area['enabled'] ?? 1));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($area['timestamp'] ?? current_time('U')));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($area['id']));
 				}
 			}
@@ -426,46 +540,75 @@ class KA4WP_Admin {
 	 * Saves the API response partners in taxonomy database
 	 *
 	 * @since    1.2.0
+	 * @param array $partners Partners received from api call
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_response_update_partners($partners) {
 		
 		foreach($partners as $partner)
 		{
-			$term = term_exists(sanitize_text_field($partner['organizationname']), 'partners');
-			if(!empty($term['term_id']))
+			if(empty($partner['id']) || empty($partner['name']))
 			{
-				update_term_meta($term['term_id'], 'api_managed', 1);
-				update_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp']));
-				update_term_meta($term['term_id'], 'external_id', sanitize_text_field($partner['id']));
-				update_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer']));
-				update_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner']));
-				update_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner']));
-				update_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder']));
-				update_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street']));
-				update_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber']));
-				update_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode']));
-				update_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city']));
-				update_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district']));
-				update_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber']));
-				update_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website']));
+				continue;
+			}
+			
+			$terms = get_terms(array(
+				'taxonomy' => 'partners',
+				'hide_empty' => false,
+				'meta_query' => array(
+					array(
+						'key'       => 'api_managed',
+						'value'     => 1,
+						'compare'   => '='
+					),
+					array(
+						'key'       => 'external_id',
+						'value'     => sanitize_text_field($partner['id']),
+						'compare'   => '='
+					),
+					'relation' => 'AND',
+				)
+			));
+			
+			if(!empty($terms))
+			{
+				foreach($terms as $term)
+				{
+					wp_update_term($term->term_id, 'partners', array(
+							'name' => sanitize_text_field($partner['organizationname']),
+						));
+					update_term_meta($term->term_id, 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U')));
+					update_term_meta($term->term_id, 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
+					update_term_meta($term->term_id, 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
+					update_term_meta($term->term_id, 'otherpartner', sanitize_text_field($partner['otherpartner'] ?? 0));
+					update_term_meta($term->term_id, 'organisation_holder', sanitize_text_field($partner['organisation_holder'] ?? ''));
+					update_term_meta($term->term_id, 'street', sanitize_text_field($partner['street'] ?? ''));
+					update_term_meta($term->term_id, 'streetnumber', sanitize_text_field($partner['streetnumber'] ?? ''));
+					update_term_meta($term->term_id, 'zipcode', sanitize_text_field($partner['zipcode'] ?? ''));
+					update_term_meta($term->term_id, 'city', sanitize_text_field($partner['city'] ?? ''));
+					update_term_meta($term->term_id, 'district', sanitize_text_field($partner['district'] ?? ''));
+					update_term_meta($term->term_id, 'phonenumber', sanitize_text_field($partner['phonenumber'] ?? ''));
+					update_term_meta($term->term_id, 'website', sanitize_text_field($partner['website'] ?? ''));
+				}
 			} else {
 				$term = wp_insert_term(sanitize_text_field($partner['organizationname']), 'partners', array());
 				if(!is_wp_error($term))
 				{
 					add_term_meta($term['term_id'], 'api_managed', 1);
-					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp']));
+					add_term_meta($term['term_id'], 'timestamp', sanitize_text_field($partner['timestamp'] ?? current_time('U')));
 					add_term_meta($term['term_id'], 'external_id', sanitize_text_field($partner['id']));
-					add_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer']));
-					add_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner']));
-					add_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner']));
-					add_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder']));
-					add_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street']));
-					add_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber']));
-					add_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode']));
-					add_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city']));
-					add_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district']));
-					add_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber']));
-					add_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website']));
+					add_term_meta($term['term_id'], 'organizer', sanitize_text_field($partner['organizer'] ?? 0));
+					add_term_meta($term['term_id'], 'socialpartner', sanitize_text_field($partner['socialpartner'] ?? 0));
+					add_term_meta($term['term_id'], 'otherpartner', sanitize_text_field($partner['otherpartner'] ?? 0));
+					add_term_meta($term['term_id'], 'organisation_holder', sanitize_text_field($partner['organisation_holder'] ?? ''));
+					add_term_meta($term['term_id'], 'street', sanitize_text_field($partner['street'] ?? ''));
+					add_term_meta($term['term_id'], 'streetnumber', sanitize_text_field($partner['streetnumber'] ?? ''));
+					add_term_meta($term['term_id'], 'zipcode', sanitize_text_field($partner['zipcode'] ?? ''));
+					add_term_meta($term['term_id'], 'city', sanitize_text_field($partner['city'] ?? ''));
+					add_term_meta($term['term_id'], 'district', sanitize_text_field($partner['district'] ?? ''));
+					add_term_meta($term['term_id'], 'phonenumber', sanitize_text_field($partner['phonenumber'] ?? ''));
+					add_term_meta($term['term_id'], 'website', sanitize_text_field($partner['website'] ?? ''));
 				}
 			}
 		}
@@ -478,6 +621,10 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.1.0
+	 * @param string $taxonomy The taxonomy to clean up
+	 * @param array $data The data received from the api call
+	 *
+	 * @return void
 	 */
 	private function ka4wp_cleanup_response_taxonomies($taxonomy, $data)
 	{
@@ -494,8 +641,6 @@ class KA4WP_Admin {
 			));
 			
 		$keepDeletedEntries = get_option('ka4wp_api_keep_deleted_'.$taxonomy, '0') ?? '0';
-		error_log('[KA4WP]: CleanUp: Delete setting is: '.$keepDeletedEntries);
-		error_log('[KA4WP]: CleanUp: Found entries in response: '.count(array_filter(array_column($data, 'id'))));
 		
 		if(!empty($terms) && (count(array_filter(array_column($data, 'id'))) > 0 || empty($data)))
 		{
@@ -519,18 +664,20 @@ class KA4WP_Admin {
 	 * Check Plugin Dependencies
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_verify_dependencies(){
 		if(is_multisite()){
 			if(!is_plugin_active_for_network('contact-form-7/wp-contact-form-7.php')){
 				echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
 			}
 		}else{
 			if(!is_plugin_active('contact-form-7/wp-contact-form-7.php')){
       			echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for Wordpress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
+	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
 	         	</div>';
     		}
     	}
@@ -540,6 +687,8 @@ class KA4WP_Admin {
 	 * Register the Custom Post Type
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_custom_post_type(){
 		$supports = array(
@@ -580,6 +729,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_eventcategories_taxonomy(){
 
@@ -618,6 +769,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_impartingareas_taxonomy(){
 
@@ -656,6 +809,8 @@ class KA4WP_Admin {
 	 * Register the event categories taxonomy
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_partners_taxonomy(){
 
@@ -694,11 +849,13 @@ class KA4WP_Admin {
 	 * Register the Custom Meta Boxes
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_metabox(){
 	    add_meta_box(
 	        'cf7anyapi-setting',
-	        __( 'Kultur-API Setting', 'kultur-api-for-wp' ),
+	        __( 'Settings for Kultur-API integration', 'kultur-api-for-wp' ),
 	        array($this,'ka4wp_api_settings'),
 	        'ka4wp'
 	    );
@@ -708,6 +865,10 @@ class KA4WP_Admin {
 	 * Add settings links to plugin overview
 	 *
 	 * @since    1.0.0
+	 * @param array $links Array with existing plugin info links
+	 * @param string $file Path of the plugin file
+	 *
+	 * @return array $links Array with additional links
 	 */
 	public function ka4wp_add_settings_link($links, $file){
 		if($file === 'kultur-api-for-wp/kultur-api-for-wp.php' && current_user_can('manage_options')){
@@ -724,6 +885,8 @@ class KA4WP_Admin {
 	 * Register the Submenu
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_submenu(){
 
@@ -750,6 +913,8 @@ class KA4WP_Admin {
 	 * Register the Submenu page "Settings"
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_submenu_settings_callback(){
 		include dirname(__FILE__).'/partials/ka4wp-admin-options.php';
@@ -759,6 +924,8 @@ class KA4WP_Admin {
 	 * Register the Submenu page "Documentation"
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_submenu_docs_callback(){
 		include dirname(__FILE__).'/partials/placeholder.php';
@@ -768,6 +935,9 @@ class KA4WP_Admin {
 	 * Register the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
+	 * @param array $panels Array with the existing CF7 panels
+	 *
+	 * @return array $panels The full panels for CF7 integration
 	 */
 	public function ka4wp_cf7_add_api_integration($panels){
 		$integration_panel = array(
@@ -783,6 +953,8 @@ class KA4WP_Admin {
 	 * Display the CF7-API integration page
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_api_settings_callback($post){
 		include dirname(__FILE__).'/partials/ka4wp-form-options.php';
@@ -792,6 +964,8 @@ class KA4WP_Admin {
 	 * Registered Metaboxes Fields
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function ka4wp_api_settings() {
 		include dirname(__FILE__).'/partials/ka4wp-admin-display.php';
@@ -810,16 +984,21 @@ class KA4WP_Admin {
 	 * Manage taxonomy partners fields
 	 *
 	 * @since    1.2.0
+	 * @param int $term_id Id of the given term
+	 *
+	 * @return void
 	 */
 	function ka4wp_save_custom_taxonomy_partners($term_id)
 	{
-		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id']));	
+		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id'] ?? 0));	
 	}
 	
 	/**
 	 * Register settings for options page.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_register_settings() {
 		
@@ -1006,13 +1185,15 @@ class KA4WP_Admin {
 					'name' => 'ka4wp_partnerlogo_default',
 				]
 			);
-
 	}
 	
 	/**
 	 * Render possible posttypes from APIs
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_publish_api($args) {
 		
@@ -1040,6 +1221,9 @@ class KA4WP_Admin {
 	 * Render possible cron recurrence settings
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_cron_recurrence($args) {
 		
@@ -1059,6 +1243,9 @@ class KA4WP_Admin {
 	 * Render image gallery select settings
 	 *
 	 * @since    1.2.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_image_gallery_select($args) {
 		
@@ -1084,6 +1271,9 @@ class KA4WP_Admin {
 	 * Render simple checkbox settings
 	 *
 	 * @since    1.0.0
+	 * @param array $args Array with setting configuration data
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_render_checkbox($args) {
 		
@@ -1098,6 +1288,9 @@ class KA4WP_Admin {
 	 * Validate settings if selected post is published
 	 *
 	 * @since    1.2.0
+	 * @param string $input Setting value after changing
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_validate_post_published($input) {
 
@@ -1108,6 +1301,9 @@ class KA4WP_Admin {
 	 * Validate settings if the cron recurrence is valid
 	 *
 	 * @since    1.2.0
+	 * @param string $input Setting value after changing
+	 *
+	 * @return void
 	 */
 	public function ka4wp_settings_validate_cron_recurrence($input) {
 
@@ -1190,7 +1386,6 @@ class KA4WP_Admin {
 						update_post_meta($post_id, 'check_result', 0);
 						update_post_meta($post_id, 'check_result_message', !empty($response['error']) ? sanitize_text_field($response['error']) : sanitize_text_field($response['body']));
 					}
-
 				}
 			}
 		}
@@ -1213,7 +1408,7 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function save_contact_form_API_details($contact_form) {
-		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce']))))
+		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
 			{
@@ -1255,6 +1450,8 @@ class KA4WP_Admin {
 	 * API Endpoint to load selected predefined mapping
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function ka4wp_get_predefined_mapping()
 	{	
@@ -1277,10 +1474,8 @@ class KA4WP_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function ka4wp_get_endpoint_defaults($post_id = null)
-	{	
-		$post_id ?? 0;
-		
+	public static function ka4wp_get_endpoint_defaults($post_id = 0)
+	{			
 		$options = [];
 		switch(get_post_meta($post_id, 'ka4wp_api_type', true))
 		{
@@ -1362,8 +1557,6 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 */
 	public function ka4wp_prepare_formdata_for_api($WPCF7_ContactForm) {
-		
-		error_log('API-Data: Verarbeitung gestartet');
 		
 		//prepare upload directory
 		$uploadDir = wp_upload_dir();
@@ -1555,7 +1748,7 @@ class KA4WP_Admin {
       	}
 		
 		if(!empty($api_options['basic_auth'])){
-        	$args['headers']['Authorization'] = 'Basic ' . base64_encode($api_options['basic_auth_username'] ?? ''.':'.$api_options['basic_auth_password'] ?? '');
+        	$args['headers']['Authorization'] = 'Basic ' . base64_encode($api_options['basic_auth_username'] ?: ''.':'.$api_options['basic_auth_password'] ?: '');
       	}
       
       	if(!empty($api_options['bearer_auth'])){
@@ -1612,6 +1805,10 @@ class KA4WP_Admin {
 	 * Child function to convert API response into correct format
 	 *
 	 * @since    1.0.0
+	 * @param array $response Data to get from api call
+	 * @param int $log_id The id of the operation to log results
+	 *
+	 * @return array 
 	 */
 	public static function ka4wp_api_handle_result($response, $log_id = 0) {
 		

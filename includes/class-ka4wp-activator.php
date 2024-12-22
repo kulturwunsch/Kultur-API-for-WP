@@ -28,21 +28,30 @@ class KA4WP_Activator {
 	 * Re-schedule all cron jobs and refresh settings.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public static function activate() {
 
 		// schedule cron to receive event categories
 		$categoryCronEnabled = get_option('ka4wp_api_receive_eventcategories', '-1') ?: '-1';
-		
 		if($categoryCronEnabled != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_eventcategories'))
 		{
 			wp_schedule_event(time(), get_option('ka4wp_api_receive_eventcategories_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
 		}
 		
+		// schedule cron to receive imparting areas
 		$impartingCronEnabled = get_option('ka4wp_api_receive_impartingareas', '-1') ?: '-1';
 		if($impartingCronEnabled != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_impartingareas'))
 		{
 			wp_schedule_event(time(), get_option('ka4wp_api_receive_impartingareas_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_impartingareas');
+		}
+		
+		// schedule cron to receive partners
+		$partnersCronEnabled = get_option('ka4wp_api_receive_partners', '-1') ?: '-1';
+		if($partnersCronEnabled != '-1' && !wp_next_scheduled('ka4wp_cron_api_update_partners'))
+		{
+			wp_schedule_event(time(), get_option('ka4wp_api_receive_partners_recurrence', 'daily') ?: 'daily', 'ka4wp_cron_api_update_partners');
 		}
 		
 		//set installation id if empty
@@ -50,7 +59,6 @@ class KA4WP_Activator {
 		{
 			add_option( 'ka4wp_installation_id', md5(uniqid('ka4wp_', true)) );
 		}
-
 	}
 
 }

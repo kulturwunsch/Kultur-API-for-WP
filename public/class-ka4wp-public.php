@@ -57,29 +57,32 @@ class KA4WP_Public {
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_styles() {
 
 		wp_enqueue_style( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'css/ka4wp-public.min.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-public.min.js', array( 'jquery' ), $this->version, false );
-
 	}
 	
 	/**
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.0.0
-	 * @return    array
+	 *
+	 * @return    array $data
 	 */
 	public function ka4wP_load_cf7_custom_options($data, $options, $args) {
 		$data = [];
@@ -107,7 +110,9 @@ class KA4WP_Public {
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.2.0
-	 * @return    array
+	 * @param array $atts Given attributes for shortcode customization
+	 *
+	 * @return    string
 	 */
 	public function ka4wp_load_shortcode_partners($atts) {
 		$shortcode_options = shortcode_atts([
@@ -117,7 +122,11 @@ class KA4WP_Public {
 								'view_phone' => '1',
 								'view_email' => '1',
 								'view_adress' => '1',
-								'view_button' => '1',
+								'view_website' => '1',
+								'grid_xs' => '2',
+								'grid_sm' => '3',
+								'grid_lg' => '4',
+								'grid_xl' => '4',
 							], $atts, 'ka4wp_partners');
 		
 		return include dirname(__FILE__).'/partials/ka4wp_shortcode_partners.php';

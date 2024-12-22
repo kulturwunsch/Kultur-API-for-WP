@@ -5,7 +5,7 @@ Tags: contact form, api, events, culture, multilingual
 Requires at least: 6.3
 Requires PHP: 7.4
 Tested up to: 6.7
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=contact-form-7%2Ckultur-api-for-wp&redirect=edit.php%3Fpost_type%3Dka4wp%26page%3Dka4wp_settings&ni=true
@@ -42,7 +42,7 @@ With the standard configuration, this plugin does not store any personal data. D
 
 = Required plugins =
 
-The following plugins are recommended for fully Kultur-API integration:
+The following plugins are required for fully Kultur-API integration:
 
 * [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) by Takayuki Miyoshi - With Contact Form 7 you are able to create smart and flexible contact forms.
 
@@ -63,6 +63,16 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 
 
 == Changelog ==
+
+= 1.3.0 =
+
+- translations for languag strings in admin-js are added
+- The Plugin is now registered for WP Consent Api usage
+- adding more Options to configure Partner grid (take at look at our Github documentation)
+- some code improvements
+- change: mapping for external entries intaxoomies changed vom displayname to external_id
+- fix: some Translation issues were fixed
+- fix: the partner api was not correct planned on (de)activation
 
 = 1.2.0 =
 
