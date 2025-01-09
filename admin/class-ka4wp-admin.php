@@ -1714,7 +1714,7 @@ class KA4WP_Admin {
 	 *
 	 * @since    1.0.0
 	 * @param string $api_action Action that should performed
-	 * @param string $postid Id of the given post
+	 * @param string|int $postid Id of the given post
 	 *
 	 * @return array
 	 */
@@ -1723,11 +1723,11 @@ class KA4WP_Admin {
 				'url'     		=> in_array(wp_get_development_mode(), ['plugin', 'all']) ? 'https://api.testserver.wunschevents.de/v1' : 'https://api.wunsch.events/v1',
 				'input_type'	=> 'JSON',
 				'http_method'	=> 'GET',
-				'headers'		=> ['Authorization' => 'Basic '.get_post_meta($postid, 'ka4wp_api_key', true)],
-				'auth_token'	=> get_post_meta($postid, 'ka4wp_api_key', true),
+				'headers'		=> ['Authorization' => 'Basic '.get_post_meta(absint($postid), 'ka4wp_api_key', true)],
+				'auth_token'	=> get_post_meta(absint($postid), 'ka4wp_api_key', true),
 			);
 			
-		$defaults = self::ka4wp_get_endpoint_defaults($postid);
+		$defaults = self::ka4wp_get_endpoint_defaults(absint($postid));
 		$api_options['url'] .= $defaults[$api_action]['endpoint_path'];
 		
 		return $api_options;
@@ -1742,7 +1742,7 @@ class KA4WP_Admin {
 	 * @param array $data Data to send via API
 	 * @param array $post_data Id of the given post
 	 *
-	 * @return ka4wp_api_handle_result
+	 * @return KA4WP_Admin
 	 */
 	public static function ka4wp_send_lead($post_id, $api_action='', $data = [])
 	{	
