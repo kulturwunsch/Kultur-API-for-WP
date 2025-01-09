@@ -81,6 +81,9 @@ class KA4WP_Public {
 	 * Load custom options for contact form 7 option fields
 	 *
 	 * @since     1.0.0
+	 * @param	array $data Parsed dataset with arrays for form creation
+	 * @param	array $options Array with given CF7 Option sets
+	 * @param	string $args Additional attributes for the formfield
 	 *
 	 * @return    array $data
 	 */

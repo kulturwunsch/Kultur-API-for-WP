@@ -188,11 +188,11 @@ The table show you the options how to configure the shortcode:
 | `view_logo`    | 1                 | 1 or 0                                        | If the partner logo should displayed                        |
 | `view_phone`   | 1                 | 1 or 0                                        | If the partners phone number should displayed               |
 | `view_adress`  | 1                 | 1 or 0                                        | If the partners postal adress should displayed              |
-| `view_website`  | 1                 | 1 or 0                                        | If a button to visit the partners website should displayed  |
-| `grid_xs`      | 2                 | Number between 0 and 12                                        | How much objects should displayed in a xs grid per row      |
-| `grid_sm`      | 3                 | Number between 0 and 12                                        | How much objects should displayed in a sm grid per row      |
-| `grid_lg`      | 4                 | Number between 0 and 12                                        | How much objects should displayed in a lg grid per row      |
-| `grid_xl`      | 4                 | Number between 0 and 12                                       | How much objects should displayed in a xl grid per row      |
+| `view_website` | 1                 | 1 or 0                                        | If a button to visit the partners website should displayed  |
+| `grid_xs`      | 2                 | Number between 0 and 12                       | How much objects should displayed in a xs grid per row      |
+| `grid_sm`      | 3                 | Number between 0 and 12                       | How much objects should displayed in a sm grid per row      |
+| `grid_lg`      | 4                 | Number between 0 and 12                       | How much objects should displayed in a lg grid per row      |
+| `grid_xl`      | 4                 | Number between 0 and 12                       | How much objects should displayed in a xl grid per row      |
 
 
 ### Contact form 7
