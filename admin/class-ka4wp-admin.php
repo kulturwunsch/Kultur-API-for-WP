@@ -1431,7 +1431,7 @@ class KA4WP_Admin {
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
 			{
-				$properties = $contact_form->get_properties();
+				$properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
 				
 				$options = [];
 				foreach($_POST['wpcf7-ka4wp'] as $key => $val)
@@ -1453,7 +1453,7 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_get_selected_endpoint()
 	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(sanitize_text_field($_POST['post_id']));
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
 		
 		$predefinedMappings = [];
 		foreach($defaultsOptions as $typeKey => $typeValues)
@@ -1476,7 +1476,7 @@ class KA4WP_Admin {
 	 */
 	public static function ka4wp_get_predefined_mapping()
 	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(sanitize_text_field($_POST['post_id']));
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
 		
 		$predefinedMappings = [];
 		if(!empty($defaultsOptions[sanitize_text_field($_POST['mapping_key'])]['options']))
