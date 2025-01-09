@@ -1412,7 +1412,7 @@ class KA4WP_Admin {
 	 *
 	 * @return array
 	 */
-	public function add_contact_form_API_properties($properties, $contact_form) { //@phpstan-ignore parameter.unresolvableType
+	public function add_contact_form_API_properties($properties, $contact_form) { //@phpstan-ignore class.notFound
 
 		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true); //@phpstan-ignore class.notFound
 		return $properties;
@@ -1426,7 +1426,7 @@ class KA4WP_Admin {
 	 *
 	 * @return void
 	 */
-	public function save_contact_form_API_details($contact_form) { //@phpstan-ignore parameter.unresolvableType
+	public function save_contact_form_API_details($contact_form) { //@phpstan-ignore class.notFound
 		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
@@ -1439,7 +1439,7 @@ class KA4WP_Admin {
 					$options[sanitize_text_field($key)] = sanitize_text_field($val);
 				}
 				$properties['ka4wp_api_integrations'] = $options;
-				$contact_form->set_properties($properties);
+				$contact_form->set_properties($properties); //@phpstan-ignore class.notFound
 			}
 		}
 	}
@@ -1697,7 +1697,7 @@ class KA4WP_Admin {
 	 *
 	 * @return bool
 	 */
-	public function ka4wp_check_skip_mail($skip_mail, $contact_form) { //@phpstan-ignore parameter.unresolvableType
+	public function ka4wp_check_skip_mail($skip_mail, $contact_form) { //@phpstan-ignore class.notFound
 		
 		$form_properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
 		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
@@ -1764,7 +1764,6 @@ class KA4WP_Admin {
 				'decompress'  => true,
 				'sslverify'   => true,
 				'stream'      => false,
-				'filename'    => null
 			);
 		
 		$api_options = [];
@@ -1809,7 +1808,7 @@ class KA4WP_Admin {
 				if(!empty($data)) {
 					$json = wp_json_encode($data);
 
-					if(is_wp_error($json)){
+					if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
 						return ['success' => false, 'error' => $json->get_error_message()];
 					} else {
 						$args['body'] = $json;
@@ -1825,7 +1824,7 @@ class KA4WP_Admin {
         		$args['headers']['Content-Type'] = 'application/json';
         		$json = wp_json_encode($data);
         	
-        		if(is_wp_error($json)){
+        		if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
           			return ['success' => false, 'error' => $json->get_error_message()];
         		} else{
           			$args['body'] = $json;
@@ -1851,7 +1850,7 @@ class KA4WP_Admin {
 	 */
 	public static function ka4wp_api_handle_result($response, $log_id = 0) {
 		
-		if(!is_wp_error($response))
+		if(!is_wp_error($response)) //@phpstan-ignore function.impossibleType
 		{
 			if(strpos($response['headers']['Content-Type'], 'application/json') !== false)
 			{
