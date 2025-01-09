@@ -1412,9 +1412,9 @@ class KA4WP_Admin {
 	 *
 	 * @return array
 	 */
-	public function add_contact_form_API_properties($properties, $contact_form) {
+	public function add_contact_form_API_properties($properties, $contact_form) { //@phpstan-ignore parameter.unresolvableType
 
-		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true);
+		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true); //@phpstan-ignore class.notFound
 		return $properties;
 	}
 	
@@ -1426,7 +1426,7 @@ class KA4WP_Admin {
 	 *
 	 * @return void
 	 */
-	public function save_contact_form_API_details($contact_form) {
+	public function save_contact_form_API_details($contact_form) { //@phpstan-ignore parameter.unresolvableType
 		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
@@ -1593,7 +1593,7 @@ class KA4WP_Admin {
 		}
 		
 		//prepare form fields
-		$CF7Submission = WPCF7_Submission::get_instance();
+		$CF7Submission = WPCF7_Submission::get_instance(); //@phpstan-ignore class.notFound
 		$posted_data = $CF7Submission->get_posted_data();
 		$uploaded_files = $CF7Submission->uploaded_files();
 		$ContactForm = $CF7Submission->get_contact_form();
@@ -1697,9 +1697,9 @@ class KA4WP_Admin {
 	 *
 	 * @return bool
 	 */
-	public function ka4wp_check_skip_mail($skip_mail, $contact_form) {
+	public function ka4wp_check_skip_mail($skip_mail, $contact_form) { //@phpstan-ignore parameter.unresolvableType
 		
-		$form_properties = $contact_form->get_properties();
+		$form_properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
 		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
 		
 		if(!empty($api_settings['stop_email']) && !empty($api_settings["send_to_api"]))
@@ -1740,9 +1740,8 @@ class KA4WP_Admin {
 	 * @param int $post_id Id of the given post
 	 * @param string $api_action API action that should performed
 	 * @param array $data Data to send via API
-	 * @param array $post_data Id of the given post
 	 *
-	 * @return KA4WP_Admin
+	 * @return mixed
 	 */
 	public static function ka4wp_send_lead($post_id, $api_action='', $data = [])
 	{	
