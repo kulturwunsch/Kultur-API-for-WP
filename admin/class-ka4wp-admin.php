@@ -548,7 +548,7 @@ class KA4WP_Admin {
 		
 		foreach($partners as $partner)
 		{
-			if(empty($partner['id']) || empty($partner['name']))
+			if(empty($partner['id']) || empty($partner['organizationname']))
 			{
 				continue;
 			}
@@ -953,6 +953,7 @@ class KA4WP_Admin {
 	 * Display the CF7-API integration page
 	 *
 	 * @since    1.0.0
+	 * @param array $post Array with current Post Data
 	 *
 	 * @return void
 	 */
@@ -975,6 +976,10 @@ class KA4WP_Admin {
 	 * Render taxonomy partners editor
 	 *
 	 * @since    1.2.0
+	 * @param WP_Term $term Current taxonomy term object
+	 * @param string $taxonomy Current taxonomy slug
+	 *
+	 * @return void
 	 */
 	public function ka4wp_edit_taxonomy_partners($term, $taxonomy) {
 		include dirname(__FILE__).'/partials/ka4wp-edit-taxonomy-partners.php';
@@ -990,7 +995,7 @@ class KA4WP_Admin {
 	 */
 	function ka4wp_save_custom_taxonomy_partners($term_id)
 	{
-		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id'] ?? 0));	
+		update_term_meta($term_id, 'logo_image_id',	sanitize_text_field($_POST['ka4wp_logo_image_id'] ?? get_term_meta($term_id, 'logo_image_id', true) ?: 0));	
 	}
 	
 	/**
@@ -1290,7 +1295,7 @@ class KA4WP_Admin {
 	 * @since    1.2.0
 	 * @param string $input Setting value after changing
 	 *
-	 * @return void
+	 * @return int
 	 */
 	public function ka4wp_settings_validate_post_published($input) {
 
@@ -1303,7 +1308,7 @@ class KA4WP_Admin {
 	 * @since    1.2.0
 	 * @param string $input Setting value after changing
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function ka4wp_settings_validate_cron_recurrence($input) {
 
@@ -1314,6 +1319,8 @@ class KA4WP_Admin {
 	 * Retrieve the all current Post API metadata
 	 *
 	 * @since     1.0.0
+	 * @param int $post_id Id of the selected Post
+	 *
 	 * @return    array
 	 */
 	public function ka4wp_get_api_options($post_id) {
@@ -1339,6 +1346,11 @@ class KA4WP_Admin {
 	 * Update the Metaboxes value on Post Save
 	 *
 	 * @since    1.0.0
+	 * @param int $post_id Id of the selected Post
+	 * @param WP_Post $post Post object
+	 * @param bool $update Whether this is an existing post being updated
+	 *
+	 * @return void
 	 */
 	public static function ka4wp_update_API_settings($post_id, $post, $update){
 		if($post->post_type == 'ka4wp'){
@@ -1395,10 +1407,14 @@ class KA4WP_Admin {
 	 * Saves the API settings from the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
+	 * @param array $properties Given properties
+	 * @param WPCF7_ContactForm $contact_form Current contact form object
+	 *
+	 * @return array
 	 */
-	public function add_contact_form_API_properties($properties, $contact_form) {
+	public function add_contact_form_API_properties($properties, $contact_form) { //@phpstan-ignore class.notFound
 
-		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true);
+		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true); //@phpstan-ignore class.notFound
 		return $properties;
 	}
 	
@@ -1406,13 +1422,16 @@ class KA4WP_Admin {
 	 * Saves the API settings from the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
+	 * @param WPCF7_ContactForm $contact_form Current contact form object
+	 *
+	 * @return void
 	 */
-	public function save_contact_form_API_details($contact_form) {
+	public function save_contact_form_API_details($contact_form) { //@phpstan-ignore class.notFound
 		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
 		{
 			if(is_array($_POST['wpcf7-ka4wp']))
 			{
-				$properties = $contact_form->get_properties();
+				$properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
 				
 				$options = [];
 				foreach($_POST['wpcf7-ka4wp'] as $key => $val)
@@ -1420,7 +1439,7 @@ class KA4WP_Admin {
 					$options[sanitize_text_field($key)] = sanitize_text_field($val);
 				}
 				$properties['ka4wp_api_integrations'] = $options;
-				$contact_form->set_properties($properties);
+				$contact_form->set_properties($properties); //@phpstan-ignore class.notFound
 			}
 		}
 	}
@@ -1429,10 +1448,12 @@ class KA4WP_Admin {
 	 * Ajax Endpoint to load specific API details
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
 	public function ka4wp_get_selected_endpoint()
 	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(sanitize_text_field($_POST['post_id']));
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
 		
 		$predefinedMappings = [];
 		foreach($defaultsOptions as $typeKey => $typeValues)
@@ -1455,7 +1476,7 @@ class KA4WP_Admin {
 	 */
 	public static function ka4wp_get_predefined_mapping()
 	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(sanitize_text_field($_POST['post_id']));
+		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
 		
 		$predefinedMappings = [];
 		if(!empty($defaultsOptions[sanitize_text_field($_POST['mapping_key'])]['options']))
@@ -1473,6 +1494,9 @@ class KA4WP_Admin {
 	 * API Endpoint to load selected predefined mapping
 	 *
 	 * @since    1.0.0
+	 * @param int $post_id Id of the post to fetch data
+	 *
+	 * @return array
 	 */
 	public static function ka4wp_get_endpoint_defaults($post_id = 0)
 	{			
@@ -1555,9 +1579,11 @@ class KA4WP_Admin {
 	 * Prepare formdata for API submit
 	 *
 	 * @since    1.0.0
+	 *
+	 * @return void
 	 */
-	public function ka4wp_prepare_formdata_for_api($WPCF7_ContactForm) {
-		
+	public function ka4wp_prepare_formdata_for_api()
+	{	
 		//prepare upload directory
 		$uploadDir = wp_upload_dir();
 		$pluginUploadDir = trailingslashit($uploadDir['basedir']).'ka4wp_temp';
@@ -1567,7 +1593,7 @@ class KA4WP_Admin {
 		}
 		
 		//prepare form fields
-		$CF7Submission = WPCF7_Submission::get_instance();
+		$CF7Submission = WPCF7_Submission::get_instance(); //@phpstan-ignore class.notFound
 		$posted_data = $CF7Submission->get_posted_data();
 		$uploaded_files = $CF7Submission->uploaded_files();
 		$ContactForm = $CF7Submission->get_contact_form();
@@ -1648,7 +1674,7 @@ class KA4WP_Admin {
 			return; #TODO: Implement logging
 		}
 		
-		self::ka4wp_send_lead($wpcf7_api_data["apiendpoint"], $wpcf7_api_data["predefined-mapping"] ?? '', $api_values, $posted_data = []); #TODO: $wpcf7_api_data is missing
+		self::ka4wp_send_lead($wpcf7_api_data["apiendpoint"], $wpcf7_api_data["predefined-mapping"] ?? '', $api_values); #TODO: $wpcf7_api_data is missing
 		
 		// delete uploaded files
 		if(!empty($uploaded_files)){
@@ -1666,10 +1692,14 @@ class KA4WP_Admin {
 	 * Checks if email should skipped
 	 *
 	 * @since    1.0.0
+	 * @param bool $skip_mail If mail sending should skipped
+	 * @param WPCF7_ContactForm $contact_form Current contact form object
+	 *
+	 * @return bool
 	 */
-	public function ka4wp_check_skip_mail($skip_mail, $contact_form) {
+	public function ka4wp_check_skip_mail($skip_mail, $contact_form) { //@phpstan-ignore class.notFound
 		
-		$form_properties = $contact_form->get_properties();
+		$form_properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
 		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
 		
 		if(!empty($api_settings['stop_email']) && !empty($api_settings["send_to_api"]))
@@ -1683,17 +1713,21 @@ class KA4WP_Admin {
 	 * Load WUNSCH.events default API values
 	 *
 	 * @since    1.0.0
+	 * @param string $api_action Action that should performed
+	 * @param string|int $postid Id of the given post
+	 *
+	 * @return array
 	 */
 	public static function ka4wp_api_options_wunschevents($api_action, $postid) {
 		$api_options = array(
 				'url'     		=> in_array(wp_get_development_mode(), ['plugin', 'all']) ? 'https://api.testserver.wunschevents.de/v1' : 'https://api.wunsch.events/v1',
 				'input_type'	=> 'JSON',
 				'http_method'	=> 'GET',
-				'headers'		=> ['Authorization' => 'Basic '.get_post_meta($postid, 'ka4wp_api_key', true)],
-				'auth_token'	=> get_post_meta($postid, 'ka4wp_api_key', true),
+				'headers'		=> ['Authorization' => 'Basic '.get_post_meta(absint($postid), 'ka4wp_api_key', true)],
+				'auth_token'	=> get_post_meta(absint($postid), 'ka4wp_api_key', true),
 			);
 			
-		$defaults = self::ka4wp_get_endpoint_defaults($postid);
+		$defaults = self::ka4wp_get_endpoint_defaults(absint($postid));
 		$api_options['url'] .= $defaults[$api_action]['endpoint_path'];
 		
 		return $api_options;
@@ -1703,9 +1737,14 @@ class KA4WP_Admin {
 	 * Child Fuction of specific form data send to the API
 	 *
 	 * @since    1.0.0
+	 * @param int $post_id Id of the given post
+	 * @param string $api_action API action that should performed
+	 * @param array $data Data to send via API
+	 *
+	 * @return mixed
 	 */
-	public static function ka4wp_send_lead($post_id, $api_action='', $data = [], $post_data = []){
-		
+	public static function ka4wp_send_lead($post_id, $api_action='', $data = [])
+	{	
 		$postid = absint($post_id);
 		if('publish' !== get_post_status($postid)){
 			return ['success' => false, 'error' => esc_html__('The selected API is not yet published.', 'kultur-api-for-wp')];
@@ -1725,7 +1764,6 @@ class KA4WP_Admin {
 				'decompress'  => true,
 				'sslverify'   => true,
 				'stream'      => false,
-				'filename'    => null
 			);
 		
 		$api_options = [];
@@ -1770,7 +1808,7 @@ class KA4WP_Admin {
 				if(!empty($data)) {
 					$json = wp_json_encode($data);
 
-					if(is_wp_error($json)){
+					if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
 						return ['success' => false, 'error' => $json->get_error_message()];
 					} else {
 						$args['body'] = $json;
@@ -1786,7 +1824,7 @@ class KA4WP_Admin {
         		$args['headers']['Content-Type'] = 'application/json';
         		$json = wp_json_encode($data);
         	
-        		if(is_wp_error($json)){
+        		if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
           			return ['success' => false, 'error' => $json->get_error_message()];
         		} else{
           			$args['body'] = $json;
@@ -1812,7 +1850,7 @@ class KA4WP_Admin {
 	 */
 	public static function ka4wp_api_handle_result($response, $log_id = 0) {
 		
-		if(!is_wp_error($response))
+		if(!is_wp_error($response)) //@phpstan-ignore function.impossibleType
 		{
 			if(strpos($response['headers']['Content-Type'], 'application/json') !== false)
 			{

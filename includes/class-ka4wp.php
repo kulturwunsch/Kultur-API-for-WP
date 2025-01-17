@@ -291,10 +291,11 @@ class KA4WP {
 	 * Retrieve the all current Post API metadata
 	 *
 	 * @since     1.0.0
+	 * @param int|string $post_id Id of the given post
 	 *
 	 * @return    array
 	 */
-	public function ka4wp_get_api_options($post_id) { #TODO: PHPDoc anpassen
+	public function ka4wp_get_api_options($post_id) {
 		global $post;
 		$post_id = $post->ID;
 		$options = [];

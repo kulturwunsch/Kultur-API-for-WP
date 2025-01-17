@@ -12,12 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @package    KA4WP
  * @subpackage KA4WP/public/partials
  */
-	
+ 
 	//prepare meta_query filter for partner types
-	if($shortcode_options['partnertype'] != '*')
+	if($shortcode_options['partnertype'] != '*') // @phpstan-ignore variable.undefined
 	{
 		$meta_query = [];
-		foreach(explode(",", $shortcode_options['partnertype']) as $type)
+		foreach(explode(",", $shortcode_options['partnertype']) as $type) // @phpstan-ignore variable.undefined
 		{
 			$meta_query[] = [
 						'key'       => $type,
@@ -40,34 +40,34 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				'meta_query' => $meta_query ?? [],
 			));
 			
-	if(strtolower($shortcode_options['style']) != 'table')
+	if(strtolower($shortcode_options['style']) != 'table') // @phpstan-ignore variable.undefined
 	{
 		// calculate xs Grid
 		try {
-			$grid_xs = 12 / absint($shortcode_options['grid_xs']);
+			$grid_xs = 12 / absint($shortcode_options['grid_xs']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_xs = 2;
+			$grid_xs = 2; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate sm Grid
 		try {
-			$grid_sm = 12 / absint($shortcode_options['grid_sm']);
+			$grid_sm = 12 / absint($shortcode_options['grid_sm']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_sm = 3;
+			$grid_sm = 3; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate lg Grid
 		try {
-			$grid_lg = 12 / absint($shortcode_options['grid_lg']);
+			$grid_lg = 12 / absint($shortcode_options['grid_lg']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_lg = 4;
+			$grid_lg = 4; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate xl Grid
 		try {
-			$grid_xl = 12 / absint($shortcode_options['grid_xl']);
+			$grid_xl = 12 / absint($shortcode_options['grid_xl']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_xl = 4;
+			$grid_xl = 4; // @phpstan-ignore variable.undefined
 		}
 	}
 			
@@ -130,7 +130,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				$image_id = $term_meta['logo_image_id'][0] ?: get_option('ka4wp_partnerlogo_default', '0') ?: 0;
 				$image = wp_get_attachment_image_url($image_id, 'medium');
 ?>
-				<div class="col-xs-<?php print esc_html($grid_xs); ?> col-sm-<?php print esc_html($grid_sm); ?> col-lg-<?php print esc_html($grid_lg); ?> col-xl-<?php print esc_html($grid_xl); ?> mb-4">
+				<div class="col-xs-<?php print esc_html($grid_xs); ?> col-sm-<?php print esc_html($grid_sm); ?> col-lg-<?php print esc_html($grid_lg); ?> col-xl-<?php print esc_html($grid_xl); // @phpstan-ignore variable.undefined ?> mb-4">
 					<div class="card h-100">
 <?php if(!empty($shortcode_options['view_logo']) && !empty($image)) { ?>
 						<img class="card-img-top" src="<?php print $image; ?>">

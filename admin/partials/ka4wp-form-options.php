@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	}
 
 	$form_id = !empty($_GET['post']) ? sanitize_text_field($_GET['post']) : null;
-	$ContactForm = WPCF7_ContactForm::get_instance( $form_id );
+	$ContactForm = WPCF7_ContactForm::get_instance( $form_id ); // @phpstan-ignore class.notFound
 	if(!empty($ContactForm))
 	{
 		$props = $ContactForm->get_properties();
@@ -111,11 +111,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 						<select id="wpcf7-sf-predefined-mapping" name="wpcf7-ka4wp[predefined-mapping]">
 							<option value="" <?php selected('', $wpcf7_api_data["predefined-mapping"] ?? 0, true) ?>><?php esc_html_e('No predefined fields','kultur-api-for-wp') ?></option>
 							<?php
-							foreach($defaultsOptions as $typeKey => $typeValues)
+							if(!empty($defaultsOptions))
 							{
-								if(!empty($typeValues['options']))
+								foreach($defaultsOptions as $typeKey => $typeValues)
 								{
-									echo '<option value="'.esc_attr($typeKey).'" '.selected($typeKey, $wpcf7_api_data["predefined-mapping"] ?? 0, false).'>'.esc_attr($typeValues['name']).'</option>';
+									if(!empty($typeValues['options']))
+									{
+										echo '<option value="'.esc_attr($typeKey).'" '.selected($typeKey, $wpcf7_api_data["predefined-mapping"] ?? 0, false).'>'.esc_attr($typeValues['name']).'</option>';
+									}
 								}
 							}
 							?>

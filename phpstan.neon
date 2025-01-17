@@ -5,8 +5,6 @@ parameters:
 	excludePaths:
 		- vendor/
 	reportUnmatchedIgnoredErrors: true
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
 	parallel:
 		processTimeout: 300.0
 		jobSize: 10
