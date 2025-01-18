@@ -5,7 +5,7 @@ Tags: contact form, api, events, culture, multilingual
 Requires at least: 6.3
 Requires PHP: 7.4
 Tested up to: 6.7
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=contact-form-7%2Ckultur-api-for-wp&redirect=edit.php%3Fpost_type%3Dka4wp%26page%3Dka4wp_settings&ni=true
@@ -61,6 +61,17 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 
 == Screenshots ==
 
+1. Manage settings in foer categories.
+
+2. Manage API options in the contact form 7 configuration inside a new custom tab.
+
+3. The admin menu bar.
+
+4. Add new WUNSCH.events API.
+
+5. Manage event categories, partners and imparting areas via custom taxonomy.
+
+6. Display existing partners as grid via shortcode.
 
 == Changelog ==
 
