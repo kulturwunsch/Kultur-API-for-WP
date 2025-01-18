@@ -420,11 +420,11 @@ class KA4WP_Admin {
 	 * Saves the API response eventcategories in taxonomy database
 	 *
 	 * @since    1.0.0
-	 * @param array $categories Event categories received from api call
+	 * @param array<string, string> $categories Event categories received from api call
 	 *
 	 * @return void
 	 */
-	public function ka4wp_api_response_update_eventcategories($categories) {
+	public function ka4wp_api_response_update_eventcategories(array $categories): void {
 		
 		foreach($categories as $category)
 		{
@@ -481,11 +481,11 @@ class KA4WP_Admin {
 	 * Saves the API response imparting areas in taxonomy database
 	 *
 	 * @since    1.0.0
-	 * @param array $areas IMparting areas received from api call
+	 * @param array<string, string> $areas IMparting areas received from api call
 	 *
 	 * @return void
 	 */
-	public function ka4wp_api_response_update_impartingareas($areas) {
+	public function ka4wp_api_response_update_impartingareas(array $areas): void {
 		
 		foreach($areas as $area)
 		{
@@ -540,11 +540,11 @@ class KA4WP_Admin {
 	 * Saves the API response partners in taxonomy database
 	 *
 	 * @since    1.2.0
-	 * @param array $partners Partners received from api call
+	 * @param array<string, string> $partners Partners received from api call
 	 *
 	 * @return void
 	 */
-	public function ka4wp_api_response_update_partners($partners) {
+	public function ka4wp_api_response_update_partners(array $partners): void {
 		
 		foreach($partners as $partner)
 		{
@@ -622,11 +622,11 @@ class KA4WP_Admin {
 	 *
 	 * @since    1.1.0
 	 * @param string $taxonomy The taxonomy to clean up
-	 * @param array $data The data received from the api call
+	 * @param array<string, string|int> $data The data received from the api call
 	 *
 	 * @return void
 	 */
-	private function ka4wp_cleanup_response_taxonomies($taxonomy, $data)
+	private function ka4wp_cleanup_response_taxonomies(string $taxonomy, array $data): void
 	{
 		$terms = get_terms(array(
 				'taxonomy' => $taxonomy,
@@ -865,12 +865,12 @@ class KA4WP_Admin {
 	 * Add settings links to plugin overview
 	 *
 	 * @since    1.0.0
-	 * @param array $links Array with existing plugin info links
+	 * @param array<string> $links Array with existing plugin info links
 	 * @param string $file Path of the plugin file
 	 *
-	 * @return array $links Array with additional links
+	 * @return array<string> $links Array with additional links
 	 */
-	public function ka4wp_add_settings_link($links, $file){
+	public function ka4wp_add_settings_link(array $links, string $file): array {
 		if($file === 'kultur-api-for-wp/kultur-api-for-wp.php' && current_user_can('manage_options')){
 			$url = admin_url('edit.php?post_type=ka4wp&page=ka4wp_settings');
 			$documentation = admin_url('edit.php?post_type=ka4wp&page=ka4wp_docs');
@@ -935,11 +935,11 @@ class KA4WP_Admin {
 	 * Register the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
-	 * @param array $panels Array with the existing CF7 panels
+	 * @param array<string, string|array<string, string>> $panels Array with the existing CF7 panels
 	 *
-	 * @return array $panels The full panels for CF7 integration
+	 * @return array<string, string|array<string, string>> $panels The full panels for CF7 integration
 	 */
-	public function ka4wp_cf7_add_api_integration($panels){
+	public function ka4wp_cf7_add_api_integration(array $panels): array {
 		$integration_panel = array(
             'title' => __('Kultur-API', 'kultur-api-for-wp'),
             'callback' => array($this, 'ka4wp_api_settings_callback')
@@ -1196,11 +1196,11 @@ class KA4WP_Admin {
 	 * Render possible posttypes from APIs
 	 *
 	 * @since    1.0.0
-	 * @param array $args Array with setting configuration data
+	 * @param array<string, string|int> $args Array with setting configuration data
 	 *
 	 * @return void
 	 */
-	public function ka4wp_settings_render_publish_api($args) {
+	public function ka4wp_settings_render_publish_api(array $args): void {
 		
 		$option = get_option($args['name'], '0');
 	
@@ -1226,11 +1226,11 @@ class KA4WP_Admin {
 	 * Render possible cron recurrence settings
 	 *
 	 * @since    1.0.0
-	 * @param array $args Array with setting configuration data
+	 * @param array<string, string|int> $args Array with setting configuration data
 	 *
 	 * @return void
 	 */
-	public function ka4wp_settings_render_cron_recurrence($args) {
+	public function ka4wp_settings_render_cron_recurrence(array $args): void {
 		
 		$option = get_option($args['name'], '0');
 		
@@ -1248,11 +1248,11 @@ class KA4WP_Admin {
 	 * Render image gallery select settings
 	 *
 	 * @since    1.2.0
-	 * @param array $args Array with setting configuration data
+	 * @param array<string, string|int> $args Array with setting configuration data
 	 *
 	 * @return void
 	 */
-	public function ka4wp_settings_render_image_gallery_select($args) {
+	public function ka4wp_settings_render_image_gallery_select(array $args): void {
 		
 		$option = get_option($args['name'], '0');
 		$image = wp_get_attachment_image_url(get_option($args['name'], '0'), 'medium');
@@ -1276,11 +1276,11 @@ class KA4WP_Admin {
 	 * Render simple checkbox settings
 	 *
 	 * @since    1.0.0
-	 * @param array $args Array with setting configuration data
+	 * @param array<string, string|int> $args Array with setting configuration data
 	 *
 	 * @return void
 	 */
-	public function ka4wp_settings_render_checkbox($args) {
+	public function ka4wp_settings_render_checkbox(array $args): void {
 		
 		$option = get_option($args['name']);
 		
@@ -1297,9 +1297,9 @@ class KA4WP_Admin {
 	 *
 	 * @return int
 	 */
-	public function ka4wp_settings_validate_post_published($input) {
+	public function ka4wp_settings_validate_post_published($input): int {
 
-		return ('publish' !== get_post_status(absint($input))) ? '0' : absint($input);
+		return ('publish' !== get_post_status(absint($input))) ? 0 : absint($input);
 	}
 	
 	/**
@@ -1321,7 +1321,7 @@ class KA4WP_Admin {
 	 * @since     1.0.0
 	 * @param int $post_id Id of the selected Post
 	 *
-	 * @return    array
+	 * @return    array<string, string|int>
 	 */
 	public function ka4wp_get_api_options($post_id) {
 		
@@ -1407,12 +1407,12 @@ class KA4WP_Admin {
 	 * Saves the API settings from the CF7 API Integrations Tab
 	 *
 	 * @since    1.0.0
-	 * @param array $properties Given properties
+	 * @param array<string, string> $properties Given properties
 	 * @param WPCF7_ContactForm $contact_form Current contact form object
 	 *
-	 * @return array
+	 * @return array<string, string>
 	 */
-	public function add_contact_form_API_properties($properties, $contact_form) { //@phpstan-ignore class.notFound
+	public function add_contact_form_API_properties(array $properties, $contact_form): array { //@phpstan-ignore class.notFound
 
 		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true); //@phpstan-ignore class.notFound
 		return $properties;
@@ -1739,7 +1739,7 @@ class KA4WP_Admin {
 	 * @since    1.0.0
 	 * @param int $post_id Id of the given post
 	 * @param string $api_action API action that should performed
-	 * @param array $data Data to send via API
+	 * @param array<string, string|int> $data Data to send via API
 	 *
 	 * @return mixed
 	 */
@@ -1843,10 +1843,10 @@ class KA4WP_Admin {
 	 * Child function to convert API response into correct format
 	 *
 	 * @since    1.0.0
-	 * @param array $response Data to get from api call
+	 * @param WP_Error|array<string, string|array<string, string|int>> $response Data to get from api call
 	 * @param int $log_id The id of the operation to log results
 	 *
-	 * @return array 
+	 * @return array<string, string|bool> 
 	 */
 	public static function ka4wp_api_handle_result($response, $log_id = 0) {
 		
