@@ -182,7 +182,7 @@ Shortcodes are a good way to display data with a simple piece of code. With opti
 The table show you the options how to configure the shortcode:
 
 | Datafield      | Default value     | Possible values                               | Description                                                 |
-|----------------|-------------------------------------------------------------------|-------------------------------------------------------------|
+|----------------|-------------------|-----------------------------------------------|-------------------------------------------------------------|
 | `partnertype`  | \* (All partners) | `organizer`, `socialpartner`, `otherpartners` | Which type of partner should queried from the database      |
 | `style`        | grid              | `grid` or `table`                             | Which design should used (table oder flexible grid)         |
 | `view_logo`    | 1                 | 1 or 0                                        | If the partner logo should displayed                        |
