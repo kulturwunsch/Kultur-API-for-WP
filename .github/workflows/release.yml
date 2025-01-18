@@ -10,6 +10,8 @@ jobs:
     name: Deploy to WP.org
     runs-on: ubuntu-latest 
     steps:
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Minify public JavaScript files
