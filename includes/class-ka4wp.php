@@ -202,7 +202,7 @@ class KA4WP {
 		$this->loader->add_filter('plugin_action_links',$plugin_admin,'ka4wp_add_settings_link',10,2);
         $this->loader->add_filter('wpcf7_editor_panels',$plugin_admin,'ka4wp_cf7_add_api_integration', 1, 1); // adds another tab to contact form 7 screen
         $this->loader->add_filter('wpcf7_skip_mail',$plugin_admin,'ka4wp_check_skip_mail', 10, 2);
-		$this->loader->add_action("wpcf7_save_contact_form",$plugin_admin,'save_contact_form_API_details', 10, 1); //save contact form api integrations
+		$this->loader->add_action("wpcf7_save_contact_form",$plugin_admin,'save_contact_form_api_details', 10, 1); //save contact form api integrations
         $this->loader->add_filter("wpcf7_contact_form_properties",$plugin_admin,'add_contact_form_API_properties', 10, 2); // add contact form properties
         $this->loader->add_filter("partners_edit_form_fields",$plugin_admin,'ka4wp_edit_taxonomy_partners', 10, 2);
 	}

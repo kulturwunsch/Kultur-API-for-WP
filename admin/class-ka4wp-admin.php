@@ -1426,9 +1426,9 @@ class KA4WP_Admin {
 	 *
 	 * @return void
 	 */
-	public function save_contact_form_API_details($contact_form) { //@phpstan-ignore class.notFound
-		if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
-		{
+	public function save_contact_form_api_details($contact_form) { //@phpstan-ignore class.notFound
+		#if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
+		#{
 			if(is_array($_POST['wpcf7-ka4wp']))
 			{
 				$properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
@@ -1441,7 +1441,7 @@ class KA4WP_Admin {
 				$properties['ka4wp_api_integrations'] = $options;
 				$contact_form->set_properties($properties); //@phpstan-ignore class.notFound
 			}
-		}
+		#}
 	}
 	
 	/**
@@ -1513,7 +1513,8 @@ class KA4WP_Admin {
 					'submit_cultureguest' => [
 							'name' => esc_html__('Registration of new culture guests', 'kultur-api-for-wp'),
 							'description' => esc_html__('Interface for creating new cultural guests.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/cultureguest/create', 
+							'endpoint_path' => '/cultureguest/create',
+							'http_method' => 'POST',
 							'options' => [
 								['name' => esc_html__('Firstname', 'kultur-api-for-wp'), 'value' => 'firstname'],
 								['name' => esc_html__('Lastname', 'kultur-api-for-wp'), 'value' => 'lastname'],
@@ -1530,19 +1531,38 @@ class KA4WP_Admin {
 					'submit_cultureguestgroup' => [
 							'name' => esc_html__('Registration of new culture guests as a group (for organizations)', 'kultur-api-for-wp'), 
 							'description' => esc_html__('Interface for creating new cultural guests as group.', 'kultur-api-for-wp'),  
-							'endpoint_path' => '/culturegroup/create', 
+							'endpoint_path' => '/culturegroup/create',
+							'http_method' => 'POST',
 							'options' => [
 								['name' => 'Vorname', 'value' => 'firstname'],
 								['name' => 'Nachname', 'value' => 'lastname'],
 							]
 						],
 					'submit_organisationmember' => [
-							'name' => esc_html__('Register as a organization member', 'kultur-api-for-wp'), 
+							'name' => esc_html__('Register as an organization member', 'kultur-api-for-wp'), 
 							'description' => esc_html__('Interface for creating new members in the organization.', 'kultur-api-for-wp'),   
-							'endpoint_path' => '/organizationmember/create', 
+							'endpoint_path' => '/organizationmember/create',
+							'http_method' => 'POST',
 							'options' => [
-								['name' => 'Vorname', 'value' => 'firstname'],
-								['name' => 'Nachname', 'value' => 'lastname'],
+								['name' => esc_html__('Company name', 'kultur-api-for-wp'), 'value' => 'organizationname'],
+								['name' => esc_html__('Firstname', 'kultur-api-for-wp'), 'value' => 'firstname'],
+								['name' => esc_html__('Lastname', 'kultur-api-for-wp'), 'value' => 'lastname'],
+								['name' => esc_html__('Gender', 'kultur-api-for-wp'), 'value' => 'gender'],
+								['name' => esc_html__('Email address', 'kultur-api-for-wp'), 'value' => 'email'],
+								['name' => esc_html__('Street', 'kultur-api-for-wp'), 'value' => 'street'],
+								['name' => esc_html__('Street number', 'kultur-api-for-wp'), 'value' => 'streetnumber'],
+								['name' => esc_html__('Zip code', 'kultur-api-for-wp'), 'value' => 'zipcode'],
+								['name' => esc_html__('City', 'kultur-api-for-wp'), 'value' => 'city'],
+								['name' => esc_html__('Date of birth', 'kultur-api-for-wp'), 'value' => 'birthdate'],
+								['name' => esc_html__('Fixed line number', 'kultur-api-for-wp'), 'value' => 'phone'],
+								['name' => esc_html__('Mobile number', 'kultur-api-for-wp'), 'value' => 'mobilephone'],
+								['name' => esc_html__('IBAN', 'kultur-api-for-wp'), 'value' => 'iban'],
+								['name' => esc_html__('BIC', 'kultur-api-for-wp'), 'value' => 'bic'],
+								['name' => esc_html__('Name of the Accountholder', 'kultur-api-for-wp'), 'value' => 'accountholder'],
+								['name' => esc_html__('Bankname', 'kultur-api-for-wp'), 'value' => 'bankname'],
+								['name' => esc_html__('Donation receipt', 'kultur-api-for-wp'), 'value' => 'donationreceipt'],
+								['name' => esc_html__('Amount', 'kultur-api-for-wp'), 'value' => 'amount'],
+								['name' => esc_html__('Maturity cycle', 'kultur-api-for-wp'), 'value' => 'maturitycycle'],
 							]
 						],
 					'check_api' => [
@@ -1608,24 +1628,19 @@ class KA4WP_Admin {
 					'current_user_id' => $CF7Submission->get_meta('current_user_id'),
 					'form_id' => $CF7Submission->get_meta('container_post_id'),
 				];
-		$posted_data['form_information'] = $formInformation;
-		
-		//handle uploaded files
-		if(!empty($uploaded_files))
-		{
-			foreach($uploaded_files as $key => $file) {
-				$fileExtension = pathinfo($file[0], PATHINFO_EXTENSION);
-				$originalFilename = pathinfo($file[0], PATHINFO_FILENAME);
-				$fileName = 'ka4wp-'.time().'.'.$fileExtension;
-				copy($file[0], $pluginUploadDir.'/'.$fileName);	
-				$posted_data['files'][$key] = ['filename' => $fileName, 'originalFilename' => $originalFilename, 'extension' => $fileExtension];
-			}
-		}		
+		$posted_data['form_information'] = $formInformation;		
 
 		//prepare form details
 		$form_properties = $ContactForm->get_properties();
 		$form_fields = $ContactForm->scan_form_tags();
 		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
+		
+		//stop processing when api is disabled
+		if(empty($api_settings) || empty($api_settings["send_to_api"]))
+		{
+			error_log('API-Data: API deaktiviert.');
+			return;#TODO: Fehlerhandling fehlt
+		}
 		
 		//save logs when enabled
 		if(!empty($api_settings["logging"]))
@@ -1634,24 +1649,22 @@ class KA4WP_Admin {
 			#TODO: Implement logging
 		}
 		
-		//stop processing when api is disabled
-		if(empty($api_settings["send_to_api"]))
-		{
-			error_log('API-Data: API deaktiviert.');
-			return;#TODO: Fehlerhandling fehlt
-		}
-		
 		if('publish' !== get_post_status($api_settings["apiendpoint"]))
 		{
 			error_log('API-Data: Schnittstelle nicht öffentlicht.');
 			return; #TODO: Fehlerhandling fehlt
 		}
 		$posted_data['post_id'] = $api_settings["apiendpoint"];
-	
-		//prepare uploads for api transfer
-		if(!empty($uploaded_files)){
+		
+		//handle uploaded files and prepare uploads for api transfer
+		if(!empty($uploaded_files))
+		{
 			foreach($uploaded_files as $key => $file) {
-				$posted_data['files'][$key]['file'] = base64_encode(file_get_contents($file[0]));
+				$fileExtension = pathinfo($file[0], PATHINFO_EXTENSION);
+				$originalFilename = pathinfo($file[0], PATHINFO_FILENAME);
+				$fileName = uniqid('ka4wp-').'.'.$fileExtension;
+				copy($file[0], $pluginUploadDir.'/'.$fileName);	
+				$posted_data['files'][$key] = ['filename' => $fileName, 'originalFilename' => $originalFilename, 'extension' => $fileExtension, 'file' => base64_encode(file_get_contents($file[0]))];
 			}
 		}
 		
@@ -1659,11 +1672,11 @@ class KA4WP_Admin {
 		foreach($form_fields as $form_fields_value){
 			if($form_fields_value->basetype != 'submit' && !empty($api_settings['mapping-'.$form_fields_value->raw_name]))
 			{	
-				if(!empty($uploaded_files[$form_fields_value->raw_name]))
+				if($form_fields_value->basetype == 'file')
 				{
-					$api_values[$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data['files'][$key] ?? []; #TODO: $key prüfen
+					$api_values['files'][$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data['files'][$form_fields_value->raw_name] ?? [];
 				} else {
-					$api_values[$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data[$form_fields_value->raw_name] ?? '';
+					$api_values['data'][$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data[$form_fields_value->raw_name] ?? '';
 				}
 			}
 		}
@@ -1674,12 +1687,12 @@ class KA4WP_Admin {
 			return; #TODO: Implement logging
 		}
 		
-		self::ka4wp_send_lead($wpcf7_api_data["apiendpoint"], $wpcf7_api_data["predefined-mapping"] ?? '', $api_values); #TODO: $wpcf7_api_data is missing
+		self::ka4wp_send_lead($api_settings["apiendpoint"], $api_settings["predefined-mapping"] ?? '', $api_values);
 		
 		// delete uploaded files
 		if(!empty($uploaded_files)){
 			foreach($uploaded_files as $key => $file) {
-				wp_delete_file( $pluginUploadDir.'/'.$posted_data['files'][$key]['filename'] );
+				wp_delete_file( $pluginUploadDir.'/'.$posted_data['files'][$key]['filename']);
 			}
 		}
 		
@@ -1722,13 +1735,13 @@ class KA4WP_Admin {
 		$api_options = array(
 				'url'     		=> in_array(wp_get_development_mode(), ['plugin', 'all']) ? 'https://api.testserver.wunschevents.de/v1' : 'https://api.wunsch.events/v1',
 				'input_type'	=> 'JSON',
-				'http_method'	=> 'GET',
 				'headers'		=> ['Authorization' => 'Basic '.get_post_meta(absint($postid), 'ka4wp_api_key', true)],
 				'auth_token'	=> get_post_meta(absint($postid), 'ka4wp_api_key', true),
 			);
 			
 		$defaults = self::ka4wp_get_endpoint_defaults(absint($postid));
 		$api_options['url'] .= $defaults[$api_action]['endpoint_path'];
+		$api_options['http_method'] = $defaults[$api_action]['http_method'] ?? 'GET';
 		
 		return $api_options;
 	}

@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		}
 		
 		$defaultsOptions = KA4WP_Admin::ka4wp_get_endpoint_defaults($wpcf7_api_data["apiendpoint"] ?? []);
-		$defaultMappings = $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [];
+		$defaultMappings = $wpcf7_api_data["predefined-mapping"] ? $defaultsOptions[$wpcf7_api_data["predefined-mapping"]]['options'] ?? [] : [];
 	}
 	
 	//load API types
