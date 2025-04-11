@@ -32,6 +32,17 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 	if(empty(get_option('ka4wp_prevent_deletion')))
 	{
+		//delete temp uploads directory
+		if( !class_exists( 'WP_Filesystem_Direct' ) ) {
+
+            require ABSPATH.'/wp-admin/includes/class-wp-filesystem-base.php';
+            require ABSPATH.'/wp-admin/includes/class-wp-filesystem-direct.php';
+        }
+		$uploadDir = wp_upload_dir();
+		
+		$wpsf = new WP_Filesystem_Direct(false);
+		$wpsf->delete(trailingslashit($uploadDir['basedir']).'ka4wp_temp', true, 'd');
+		
 		//define settings
 		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default');
 
