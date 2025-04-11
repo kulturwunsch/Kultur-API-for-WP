@@ -109,7 +109,7 @@ class KA4WP_Admin {
 		if (!(version_compare($oldVersion, $this->version) < 0) ) {
 			return;
 			
-		} elseif(version_compare($oldVersion, '1.3.2') < 0) ) {
+		} elseif(version_compare($oldVersion, '1.3.2') < 0) {
 			// Fix in 1.3.2 to delete all files in temp folder
 			if(!class_exists('WP_Filesystem_Direct'))
 			{
