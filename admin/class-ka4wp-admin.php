@@ -106,9 +106,22 @@ class KA4WP_Admin {
 	public function ka4wp_update_plugin() {
 		$oldVersion = get_option( 'ka4wp_plugin_version', '0.9' );
 		
-		if ( !(version_compare( $oldVersion, $this->version ) < 0) ) {
+		if (!(version_compare($oldVersion, $this->version) < 0) ) {
 			return;
+			
+		} elseif(version_compare($oldVersion, '1.3.2') < 0) ) {
+			// Fix in 1.3.2 to delete all files in temp folder
+			if(!class_exists('WP_Filesystem_Direct'))
+			{
+				require ABSPATH.'/wp-admin/includes/class-wp-filesystem-base.php';
+				require ABSPATH.'/wp-admin/includes/class-wp-filesystem-direct.php';
+			}
+		
+			$uploadDir = wp_upload_dir();
+			$wpsf = new WP_Filesystem_Direct(false);
+			$wpsf->delete(trailingslashit($uploadDir['basedir']).'ka4wp_temp', true, 'f');
 		}
+		
 		
 		$this->ka4wp_install_db();
 		
