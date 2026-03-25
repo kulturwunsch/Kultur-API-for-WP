@@ -1,4 +1,6 @@
 name: Continious Integration 
+permissions:
+  contents: read
 
 on:
   push:
