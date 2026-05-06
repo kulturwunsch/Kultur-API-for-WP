@@ -81,13 +81,15 @@ jobs:
         with:
             php-version: latest
             coverage: none
-            tools: wp-cli
 
-      - name: Update WP-CLI
-        run: sudo wp cli update --yes
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
 
       - name: Install latest version of dist-archive-command
-        run: wp package install wp-cli/dist-archive-command:@3.1.0
+        run: wp package install wp-cli/dist-archive-command:@stable
 
       - name: Build plugin
         run: |
