@@ -4,8 +4,8 @@ Donate link: https://kulturwunsch.de/spenden/
 Tags: contact form, api, events, culture, multilingual
 Requires at least: 6.3
 Requires PHP: 7.4
-Tested up to: 6.8
-Stable tag: 1.3.2
+Tested up to: 6.9
+Stable tag: 1.3.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=contact-form-7%2Ckultur-api-for-wp&redirect=edit.php%3Fpost_type%3Dka4wp%26page%3Dka4wp_settings&ni=true
@@ -27,8 +27,8 @@ It currently includes the following functions:
 Also some new features are planned:
 
 * Custom API integration
-* Submit new guests via Contact Form 7 into external database
-* Submit new club members via Contact Form 7 into external database
+* Submit new guests via FluentForms into external database
+* Submit new club members via FluentForms into external database
 
 If you have any requests or ideas for new functions, please let us know.
 
@@ -74,6 +74,11 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 6. Display existing partners as grid via shortcode.
 
 == Changelog ==
+
+= 1.3.3 =
+
+- Change compatible WordPress Version to current
+- remove Contact Form 7 as required plugin
 
 = 1.3.2 =
 
