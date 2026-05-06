@@ -16,14 +16,13 @@
  * Plugin Name:       Kultur-API for WP
  * Plugin URI:        https://github.com/kulturwunsch/Kultur-API-for-WP
  * Description:       Kultur-API for WP is an extension to digitize the entire process of a cultural impart organization.
- * Version:           1.3.2
+ * Version:           1.3.3
  * Author:            Kulturwunsch Wolfenbüttel e. V.
  * Author URI:        https://kulturwunsch.de
  * License:           GPL-3.0+
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.txt
  * Text Domain:       kultur-api-for-wp
  * Domain Path:       /languages
- * Requires Plugins:  contact-form-7
  */
 
 // If this file is called directly, abort.
@@ -36,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'KA4WP_VERSION', '1.3.2' );
+define( 'KA4WP_VERSION', '1.3.3' );
 
 /**
  * The code that runs during plugin activation.
