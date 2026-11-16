@@ -77,46 +77,6 @@ class KA4WP_Public {
 		wp_enqueue_script( $this->ka4wp, plugin_dir_url( __FILE__ ) . 'js/ka4wp-public.min.js', array( 'jquery' ), $this->version, false );
 	}
 	
-	/**
-	 * Load custom options for contact form 7 option fields
-	 *
-	 * @since     1.0.0
-	 * @param	array $data Parsed dataset with arrays for form creation
-	 * @param	array $options Array with given CF7 Option sets
-	 * @param	string $args Additional attributes for the formfield
-	 *
-	 * @return    array $data
-	 */
-	public function ka4wP_load_cf7_custom_options($data, $options, $args) {
-		$data = [];
-		foreach ($options as $option) {
-			if ($option === 'kulturapi_eventcategories') {
-				
-				$terms = get_terms([
-								'taxonomy' => 'eventcategories',
-								'hide_empty' => false,
-							]);
-				$data = array_merge($data, array_map('esc_attr', array_column($terms, 'name')));
-			} elseif($option === 'kulturapi_impartingareas') {
-				
-				$terms = get_terms([
-								'taxonomy' => 'impartingareas',
-								'hide_empty' => false,
-							]);
-				$data = array_merge($data, array_map('esc_attr', array_column($terms, 'name')));
-			}
-		}
-		return $data;
-	}
-	
-	/**
-	 * Load custom options for contact form 7 option fields
-	 *
-	 * @since     1.2.0
-	 * @param array $atts Given attributes for shortcode customization
-	 *
-	 * @return    string
-	 */
 	public function ka4wp_load_shortcode_partners($atts) {
 		$shortcode_options = shortcode_atts([
 								'partnertype' => '*',
@@ -132,6 +92,9 @@ class KA4WP_Public {
 								'grid_xl' => '4',
 							], $atts, 'ka4wp_partners');
 		
-		return include dirname(__FILE__).'/partials/ka4wp_shortcode_partners.php';
+		ob_start();
+		include dirname(__FILE__).'/partials/ka4wp_shortcode_partners.php';
+
+		return (string) ob_get_clean();
 	}
 }

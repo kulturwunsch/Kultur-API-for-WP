@@ -29,9 +29,6 @@ Do you like the plugin and would you like to support the creators in continually
 		- [Use of Taxonomy](#use-of-taxonomy)
 		- [Available shortcodes](#available-shortcodes)
 			- [Shortcode ka4wp_partners](#shortcode-ka4wp_partners)
-		- [Contact form 7](#contact-form-7)
-			- [Form field datasets](#form-field-datasets)
-			- [Disable email sending](#disable-email-sending)
 		- [Cron jobs](#cron-jobs)
 		- [API Endpoints](#api-endpoints)
 		- [Test und Releases](#test-und-releases)
@@ -69,18 +66,20 @@ If you have ideas or suggestions, please write them in the Issues section or cre
 - PHP 7.4 or later
 - PHP JSON extension enabled.
 - PHP CURL extension enabled
-- WordPress 6.3 or later
+- WordPress 7.0 or later
 
 ## Features
 
-- Integrate external API (WUNSCH.events or custom)
+- Integrate a CRM via adapters (WUNSCH.events included, more via hooks)
+- API keys via WordPress Connectors (Settings > Connectors)
 - Manage event categories
 - Manage imparting areas
 - Manage partners
-- Contact Form 7 integration
-	- Deactivate email sending
+- Fluent Forms integration
 	- Transfer forms via API (New cultural guests and new organization members)
-	- Enhanced ressource loading only on necessary pages
+	- Field mapping with required fields and additional values
+
+Contact Form 7 integration has been removed. Existing Contact Form 7 forms no longer send data to the CRM; recreate them as Fluent Forms feeds. Fluent Forms replacements for the former event-category and imparting-area datasets are planned for the next release.
 
 ## Installation
 
@@ -108,23 +107,23 @@ The plugin uses a simple file structure that makes it possible to expand the ran
 ```
 .
 ├── .github
-├── .wordpress
+│   └── workflows
+├── .wordpress-org
 ├── admin
-│   └── css
-│   └── js
-│   └── partials
+│   ├── css
+│   ├── fluentforms
+│   ├── img
+│   ├── js
+│   ├── partials
 │   └── class-ka4wp-admin.php
-│   └── index.php
 ├── includes
-├── languages
+│   ├── Adapters
+│   ├── Migration
+│   └── class-ka4wp.php
 ├── public
 │   ├── css
 │   ├── js
 │   └── partials
-│       └── style.css
-├── routes
-│   ├── index.js
-│   └── users.js
 ├── tests
 ├── index.php
 ├── kultur-api-for-wp.php
@@ -152,16 +151,11 @@ WordPress already offers functions for many possible actions in the core package
 
 ### Use of individual post types
 
-Custom posttypes are used in this plugin. A custom posttype is a post that is created and managed by the plugin. WordPress uses custom posttypes to differentiate between pages, standard blog entries and posts created by plugins. The following table provides an overview of the custom posttypes used by this plugin:
+The legacy `ka4wp` custom post type remains registered for compatibility with existing data and taxonomies, but its editor is hidden. CRM credentials are now managed through WordPress Connectors.
 
 | Type               | Description                                                                                           |
 |--------------------|-------------------------------------------------------------------------------------------------------|
-| `ka4wp_api` 		 | This type stores all information about the created interfaces. In addition to the predefined WUNSCH.events api, individual interfaces can also be created.|
-
-
-> [!NOTE]
-> When using created posts (e.g. in drop-down menus), you should always check whether they have the status `publish`.
-
+| `ka4wp` 		 | Legacy CRM interface records retained for migration and compatibility. New connections are configured in WordPress Connectors.|
 ### Use of Taxonomy
 
 This plugin uses the Taxonomy function to store and provide standardized data. A new taxonomy can be created for each type of data and expanded with metadata. The following table shows which types currently exist and which fields have been expanded.
@@ -195,42 +189,55 @@ The table show you the options how to configure the shortcode:
 | `grid_xl`      | 4                 | Number between 0 and 12                       | How much objects should displayed in a xl grid per row      |
 
 
-### Contact form 7
-
-This plugin uses functions from "Contact Form 7". The following paragraph describes the integration and configuration options.
-
-#### Form field datasets
-
-By setting up the API for `eventcategories` and `imparting areas`, data sets can be used in forms. A data set makes it possible to dynamically design selection fields, radio buttons and checkboxes. The following example shows how data sets are used:
-```
-[select <fieldname> use_label_element data:<dataset_name>]
-```
-
-The following data sets are currently available:
-
-| Key                           | Description                                                   |
-|-------------------------------|---------------------------------------------------------------|
-| `kulturapi_eventcategories`   | Contains all items present in the taxonomy `eventcategories`. |
-| `kulturapi_impartingareas`    | Contains all items present in the taxonomy `impartingareas`.  |
-
-You can find more information about how form fields work [here](https://contactform7.com/checkboxes-radio-buttons-and-menus/). Tips for developing new datasets can be found [here](https://www.zacfukuda.com/blog/cf7-dynamic-options) and [here](https://www.zacfukuda.com/blog/cf7-acf-dynamic-options).
-
-#### Disable email sending
-
-In the settings of a form you can deactivate that an email is sent after it has been sent. This setting is related to selecting an API.
-
 ### Cron jobs
 
 Cron jobs can be generated in this plugin. Cron jobs are executed cyclically, depending on the system settings, and carry out actions. All cron jobs must be implemented in such a way that they are terminated and deleted when the plugin is deactivated or uninstalled. In addition, a check must be carried out when reactivating the plugin in order to reschedule any existing cron jobs.
 
-### API Endpoints
+### CRM adapters
 
-A description of all API Endpoints will coming soon.
+A CRM is described by an adapter (`KA4WP\Adapters\AdapterInterface`, usually extending `AbstractAdapter`). An adapter defines its id, credentials, base url and endpoints. The user selects the active CRM in the plugin settings and enters the API key in **Settings > Connectors**; the key can also be provided by the environment variable or PHP constant `KA4WP_<ADAPTER_ID>_API_KEY`.
+
+Register your own adapter:
+
+```php
+add_action('ka4wp/register_adapters', function (\KA4WP\Adapters\AdapterRegistry $registry) {
+	$registry->register(new My_Crm_Adapter());
+});
+```
+
+Endpoint format (array key = endpoint key):
+
+| Key | Description |
+|-----|-------------|
+| `name`, `description` | Labels shown to the user |
+| `path`, `method` | Path appended to the base url, HTTP method |
+| `type` | `submit` (form data), `load` (fetch data) or `check` (connection test) |
+| `fields` | List of `['name' => ..., 'value' => ..., 'required' => bool]` mapping targets |
+
+Available hooks:
+
+| Hook | Type | Description |
+|------|------|-------------|
+| `ka4wp/register_adapters` | action | Register adapters |
+| `ka4wp/adapter_base_url` | filter | Change the base url (args: url, adapter id, is test) |
+| `ka4wp/fluentforms_payload` | filter | Change the data sent from Fluent Forms |
+| `ka4wp/adapter_response` | action | Runs after the CRM answered |
+
+### Updates and migrations
+
+Data migrations live in `KA4WP\Migration\Migrator` as versioned, repeatable steps. Never delete legacy data in a step; add a new step for each breaking change.
 
 
 ### Test und Releases
 
-There a currently no guidelines for new releases. This part of the documentation will filled up after the initial release.
+Run the PHPUnit unit tests with:
+
+```sh
+composer install
+composer test
+```
+
+The tests cover the versioned migration, adapter registry and HTTP request client. WordPress functions are stubbed for these unit tests; they do not replace integration testing in a WordPress installation.
 
 #### Debug logs
 

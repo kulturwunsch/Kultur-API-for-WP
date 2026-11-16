@@ -1,14 +1,14 @@
 === Kultur-API for WordPress ===
 Contributors: kulturwunsch,juventiner
 Donate link: https://kulturwunsch.de/spenden/
-Tags: contact form, api, events, culture, multilingual
-Requires at least: 6.3
+Tags: fluent forms, crm, api, events, culture, multilingual
+Requires at least: 7.0
 Requires PHP: 7.4
-Tested up to: 6.9
-Stable tag: 1.3.3
+Tested up to: 7.1
+Stable tag: 2.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=contact-form-7%2Ckultur-api-for-wp&redirect=edit.php%3Fpost_type%3Dka4wp%26page%3Dka4wp_settings&ni=true
+Demo URI: https://tastewp.com/new?pre-installed-plugin-slug=fluentform%2Ckultur-api-for-wp&redirect=admin.php%3Fpage%3Dka4wp_settings&ni=true
 
 Simple integration of your culture database into WordPress
 
@@ -21,14 +21,13 @@ It currently includes the following functions:
 * Manage categories for events
 * Manage imparting Areas
 * Manage partners
-* Include categories and areas in Contact Form 7 as dynamic fields
-* Fetch all of them via API (at the moment from WUNSCH.events only)
+* Connect a CRM via the WordPress Connectors screen (WUNSCH.events included, further CRMs via adapters)
+* Send Fluent Forms submissions to your CRM with a field mapping per form
+* Fetch categories, areas and partners via API
 
 Also some new features are planned:
 
-* Custom API integration
-* Submit new guests via FluentForms into external database
-* Submit new club members via FluentForms into external database
+* More CRM adapters
 
 If you have any requests or ideas for new functions, please let us know.
 
@@ -44,7 +43,9 @@ With the standard configuration, this plugin does not store any personal data. D
 
 The following plugins are required for fully Kultur-API integration:
 
-* [Contact Form 7](https://wordpress.org/plugins/contact-form-7/) by Takayuki Miyoshi - With Contact Form 7 you are able to create smart and flexible contact forms.
+* [Fluent Forms](https://wordpress.org/plugins/fluentform/) - required to send form submissions to your CRM.
+
+Contact Form 7 integration has been removed. Existing Contact Form 7 forms no longer send data to the CRM; recreate them as Fluent Forms feeds. Fluent Forms replacements for the former event-category and imparting-area datasets are planned for the next release.
 
 = Translations =
 
@@ -61,19 +62,33 @@ For basic usage, have a look at the [plugin's website](https://kulturwunsch.de/)
 
 == Screenshots ==
 
-1. Manage settings in foer categories.
+1. Manage plugin settings.
 
-2. Manage API options in the contact form 7 configuration inside a new custom tab.
+2. Manage event categories.
 
-3. The admin menu bar.
+3. Display existing partners as grid via shortcode.
 
-4. Add new WUNSCH.events API.
+4. Enable Kultur-API for WordPress as Fluent Forms integration
 
-5. Manage event categories, partners and imparting areas via custom taxonomy.
+5. Configure a CRM connection for the installed Kultur-API adapters
 
-6. Display existing partners as grid via shortcode.
+6. Manage a Fluent Forms form feed for the Kultur-API
+
+7. Enabled Integration inside the forms integrations list
 
 == Changelog ==
+
+= 2.0.0 =
+
+- BREAKING: requires WordPress 7.0 or later
+- BREAKING: Contact Form 7 integration is removed; recreate your forms as Fluent Forms feeds (an admin notice lists affected forms)
+- BREAKING: legacy CRM interface management is removed from the admin menu; API credentials are managed in WordPress Connectors
+- new: CRM adapters; the API key is managed in Settings > Connectors (or via the constant KA4WP_WUNSCH_EVENTS_API_KEY); one account per CRM
+- new: Fluent Forms feed with endpoint selection, field mapping, required fields and additional values
+- change: sync of categories, areas and partners is a simple on/off setting and uses the selected CRM
+- change: existing settings and API keys are migrated automatically; additional different keys are reported in an admin notice
+- fix: cron jobs were scheduled although the sync was disabled
+- fix: all pending database updates are executed on update
 
 = 1.3.3 =
 
@@ -125,3 +140,6 @@ Initial release
 
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Major update: requires WordPress 7.0, switches API keys to Settings > Connectors and removes Contact Form 7 integration. Existing CF7 forms will stop sending submissions; recreate them as Fluent Forms feeds. Back up your site before updating.

@@ -110,6 +110,12 @@ class KA4WP {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ka4wp-loader.php';
 
 		/**
+		 * Autoloader for namespaced classes (KA4WP\), e.g. the CRM adapters.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ka4wp-autoloader.php';
+		KA4WP_Autoloader::register();
+
+		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
@@ -163,16 +169,19 @@ class KA4WP {
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_notices', $plugin_admin, 'ka4wp_verify_dependencies');
+		$this->loader->add_action('admin_notices', $plugin_admin, 'ka4wp_migration_notices');
+		$this->loader->add_action('admin_notices', $plugin_admin, 'ka4wp_legacy_cf7_notice');
 		$this->loader->add_action('init', $plugin_admin,'ka4wp_custom_post_type', 10);
 		$this->loader->add_action('init', $plugin_admin,'ka4wp_register_eventcategories_taxonomy', 15);
 		$this->loader->add_action('init', $plugin_admin,'ka4wp_register_impartingareas_taxonomy', 15);
 		$this->loader->add_action('init', $plugin_admin,'ka4wp_register_partners_taxonomy', 15);
 		$this->loader->add_action('admin_init', $plugin_admin,'ka4wp_register_settings');
-		$this->loader->add_action('save_post_ka4wp',$plugin_admin,'ka4wp_update_API_settings', 10, 3);
+		$this->loader->add_action('wp_connectors_init', $plugin_admin,'ka4wp_connectors_init');
+		$this->loader->add_action('ka4wp/register_adapters', $plugin_admin,'ka4wp_register_core_adapters');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'ka4wp_register_submenu', 90);
 		$this->loader->add_action('admin_init', $plugin_admin, 'ka4wp_update_plugin', 5);
-		$this->loader->add_action('add_meta_boxes', $plugin_admin,'ka4wp_metabox');
-		$this->loader->add_action('wpcf7_before_send_mail',$plugin_admin,'ka4wp_prepare_formdata_for_api');
+		$this->loader->add_filter('parent_file', $plugin_admin, 'ka4wp_taxonomy_parent_file');
+		$this->loader->add_filter('submenu_file', $plugin_admin, 'ka4wp_taxonomy_submenu_file');
 		$this->loader->add_action('created_partners',$plugin_admin,'ka4wp_save_custom_taxonomy_partners');
 		$this->loader->add_action('edited_partners',$plugin_admin,'ka4wp_save_custom_taxonomy_partners');
 		
@@ -190,8 +199,8 @@ class KA4WP {
 		$this->loader->add_action('add_option_ka4wp_api_receive_partners_recurrence',$plugin_admin,'ka4wp_create_settings_api_receive_partners_recurrence', 10, 1);
 		$this->loader->add_action('update_option_ka4wp_api_receive_partners_recurrence',$plugin_admin,'ka4wp_update_settings_api_receive_partners_recurrence', 10, 2);
 		
-		$this->loader->add_action('wp_ajax_ka4wp_get_selected_endpoint',$plugin_admin,'ka4wp_get_selected_endpoint',10);
-		$this->loader->add_action('wp_ajax_ka4wp_get_predefined_mapping',$plugin_admin,'ka4wp_get_predefined_mapping',10);
+		#Fluent Forms
+		$this->loader->add_action('fluentform/loaded',$plugin_admin,'ka4wp_init_fluentforms',10);
 
 		
 		#CRON
@@ -200,10 +209,6 @@ class KA4WP {
 		$this->loader->add_action('ka4wp_cron_api_update_partners',$plugin_admin,'ka4wp_api_request_update_partners', 5);
 		
 		$this->loader->add_filter('plugin_action_links',$plugin_admin,'ka4wp_add_settings_link',10,2);
-        $this->loader->add_filter('wpcf7_editor_panels',$plugin_admin,'ka4wp_cf7_add_api_integration', 1, 1); // adds another tab to contact form 7 screen
-        $this->loader->add_filter('wpcf7_skip_mail',$plugin_admin,'ka4wp_check_skip_mail', 10, 2);
-		$this->loader->add_action("wpcf7_save_contact_form",$plugin_admin,'save_contact_form_api_details', 10, 1); //save contact form api integrations
-        $this->loader->add_filter("wpcf7_contact_form_properties",$plugin_admin,'add_contact_form_API_properties', 10, 2); // add contact form properties
         $this->loader->add_filter("partners_edit_form_fields",$plugin_admin,'ka4wp_edit_taxonomy_partners', 10, 2);
 	}
 
@@ -222,8 +227,6 @@ class KA4WP {
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
-		$this->loader->add_action('wpcf7_form_tag_data_option', $plugin_public, 'ka4wP_load_cf7_custom_options', 10, 3); // load taxonomy for select/checkbox/radio elements
-		
 		add_shortcode( 'ka4wp_partners', [$plugin_public, 'ka4wp_load_shortcode_partners'] );
 	}
 
@@ -281,38 +284,13 @@ class KA4WP {
 	 */
 	public static function debug_log($content) {
 		
-		if(in_array(wp_get_development_mode(), ['plugin', 'all']) || WP_DEBUG_LOG == true || WP_DEBUG == true)
+		$debug = in_array(wp_get_development_mode(), ['plugin', 'all'], true)
+			|| (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG);
+		
+		if($debug)
 		{
-			error_log('[KA4WP]: '.$content);
+			error_log('[KA4WP]: ' . (is_string($content) ? $content : wp_json_encode($content)));
 		}
-	}
-	
-	/**
-	 * Retrieve the all current Post API metadata
-	 *
-	 * @since     1.0.0
-	 * @param int|string $post_id Id of the given post
-	 *
-	 * @return    array
-	 */
-	public function ka4wp_get_api_options($post_id) {
-		global $post;
-		$post_id = $post->ID;
-		$options = [];
-		if(!empty($post_id))
-		{
-			$options['ka4wp_api_type'] = get_post_meta($post_id,'ka4wp_api_type',true);
-			$options['ka4wp_api_key'] = get_post_meta($post_id,'ka4wp_api_key',true);
-			$options['ka4wp_base_url'] = get_post_meta($post_id,'ka4wp_base_url',true);
-			$options['ka4wp_basic_auth'] = get_post_meta($post_id,'ka4wp_basic_auth',true);
-			$options['ka4wp_bearer_auth'] = get_post_meta($post_id,'ka4wp_bearer_auth',true);
-			$options['ka4wp_input_type'] = get_post_meta($post_id,'ka4wp_input_type',true);
-			$options['ka4wp_method'] = get_post_meta($post_id,'ka4wp_method',true);
-			$options['ka4wp_form_field'] = get_post_meta($post_id,'ka4wp_form_field',true);
-			$options['ka4wp_header_request'] = get_post_meta($post_id,'ka4wp_header_request',true);
-		}
-
-		return $options;
 	}
 	
 }

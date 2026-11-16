@@ -44,7 +44,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		$wpsf->delete(trailingslashit($uploadDir['basedir']).'ka4wp_temp', true, 'd');
 		
 		//define settings
-		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default');
+		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default', 'ka4wp_crm_type', 'ka4wp_wunsch_events_api_key', 'ka4wp_migration_extra_accounts', 'ka4wp_legacy_cf7_forms');
 
 		// Clear up our settings
 		foreach ($settingOptions as $settingName) {

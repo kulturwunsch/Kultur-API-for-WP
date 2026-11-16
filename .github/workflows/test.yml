@@ -30,6 +30,10 @@ jobs:
           find . -type f -name '*.php' -print0 | xargs -0 -n1 -P4 php -l -n | (! grep -v 'No syntax errors detected')
   unittest:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-versions: ['8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     needs: ['matrixtest']
     steps:
       - name: Checkout
@@ -37,18 +41,20 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.0"
+          php-version: ${{ matrix.php-versions }}
       - name: Install Composer
         uses: php-actions/composer@v6
         with:
-          php_version: "8.0"
-          dev: yes      
+          php_version: ${{ matrix.php-versions }}
+          dev: yes
+      - name: Run unit tests
+        run: phpunit -c tests/phpunit.xml
       - name: Run PHPStan Code-Tests
         uses: php-actions/phpstan@v3
         with:
           path: ./
           level: 6
-          php_version: "8.0"
+          php_version: ${{ matrix.php-versions }}
   build:
     name: Test and build plugin
     runs-on: ubuntu-latest 
@@ -82,17 +88,21 @@ jobs:
             php-version: latest
             coverage: none
             tools: wp-cli
-
       - name: Install latest version of dist-archive-command
         run: wp package install wp-cli/dist-archive-command:3.1.0
-
       - name: Build plugin
         run: |
           wp dist-archive . ./kultur-api-for-wp.zip
           mkdir tmp-build
           unzip kultur-api-for-wp.zip -d tmp-build
-
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1.1.5
         with:
           build-dir: './tmp-build/Kultur-API-for-WP'
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: kultur-api-for-wp
+          path: kultur-api-for-wp.zip
+          if-no-files-found: error
+          retention-days: 14

@@ -106,22 +106,11 @@ class KA4WP_Admin {
 	public function ka4wp_update_plugin() {
 		$oldVersion = get_option( 'ka4wp_plugin_version', '0.9' );
 		
-		if (!(version_compare($oldVersion, $this->version) < 0) ) {
+		if (version_compare($oldVersion, $this->version) >= 0) {
 			return;
-			
-		} elseif(version_compare($oldVersion, '1.3.2') < 0) {
-			// Fix in 1.3.2 to delete all files in temp folder
-			if(!class_exists('WP_Filesystem_Direct'))
-			{
-				require ABSPATH.'/wp-admin/includes/class-wp-filesystem-base.php';
-				require ABSPATH.'/wp-admin/includes/class-wp-filesystem-direct.php';
-			}
-		
-			$uploadDir = wp_upload_dir();
-			$wpsf = new WP_Filesystem_Direct(false);
-			$wpsf->delete(trailingslashit($uploadDir['basedir']).'ka4wp_temp', true, 'f');
 		}
 		
+		\KA4WP\Migration\Migrator::run($oldVersion, $this->version);
 		
 		$this->ka4wp_install_db();
 		
@@ -140,6 +129,58 @@ class KA4WP_Admin {
     private function ka4wp_install_db() {
 
     }
+	
+	/**
+	 * Initialize the Fluent Forms integration
+	 *
+	 * @since    2.0.0
+	 * @param mixed $app The current Fluent Forms Instance
+	 *
+	 * @return void
+	 */
+	public function ka4wp_init_fluentforms($app) {
+		
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/fluentforms/Bootstrap.php';
+		new \KA4WP\FluentFormIntegration($app);
+	}
+	
+	/**
+	 * Register the adapters shipped with the plugin
+	 *
+	 * @since    2.0.0
+	 * @param \KA4WP\Adapters\AdapterRegistry $registry The adapter registry
+	 *
+	 * @return void
+	 */
+	public function ka4wp_register_core_adapters($registry) {
+		
+		$registry->register(new \KA4WP\Adapters\WunschEventsAdapter());
+	}
+	
+	/**
+	 * Register a connector for every adapter that supports the Connectors screen
+	 *
+	 * @since    2.0.0
+	 * @param WP_Connector_Registry $registry The current connector registry instance
+	 *
+	 * @return void
+	 */
+	public function ka4wp_connectors_init($registry) {
+		
+		foreach (\KA4WP\Adapters\AdapterRegistry::instance()->all() as $adapter) {
+			if (!$adapter instanceof \KA4WP\Adapters\AbstractAdapter) {
+				continue;
+			}
+			
+			$definition = $adapter->get_connector_definition();
+			$connectorId = 'ka4wp_' . $adapter->get_id();
+			if ($definition === null || $registry->is_registered($connectorId)) {
+				continue;
+			}
+			
+			$registry->register($connectorId, $definition);
+		}
+	}
 	
 	/**
 	 * Run after settings "api_receive_eventcategories" added.
@@ -200,11 +241,10 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_update_settings_api_receive_eventcategories_recurrence($oldValue, $newValue) {
 		
-		$apiEnabled = get_option('ka4wp_api_receive_eventcategories_recurrence', '0') ?: '0';
-		
-		if($oldValue != $newValue && !empty($apiEnabled))
+		if($oldValue != $newValue && !empty(get_option('ka4wp_api_receive_eventcategories', '')))
 		{
-			wp_schedule_event(time(), $newValue, 'ka4wp_cron_api_update_eventcategories');
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_eventcategories');
+			wp_schedule_event(time(), $newValue ?: 'daily', 'ka4wp_cron_api_update_eventcategories');
 		}
 	}
 	
@@ -267,11 +307,10 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_update_settings_api_receive_impartingareas_recurrence($oldValue, $newValue) {
 		
-		$apiEnabled = get_option('ka4wp_api_receive_impartingareas', '0') ?: '0';
-		
-		if($oldValue != $newValue && !empty($apiEnabled))
+		if($oldValue != $newValue && !empty(get_option('ka4wp_api_receive_impartingareas', '')))
 		{
-			wp_schedule_event(time(), $newValue, 'ka4wp_cron_api_update_impartingareas');
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_impartingareas');
+			wp_schedule_event(time(), $newValue ?: 'daily', 'ka4wp_cron_api_update_impartingareas');
 		}
 	}
 	
@@ -334,12 +373,39 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_update_settings_api_receive_partners_recurrence($oldValue, $newValue) {
 		
-		$apiEnabled = get_option('ka4wp_api_receive_partners', '0') ?: '0';
-		
-		if($oldValue != $newValue && !empty($apiEnabled))
+		if($oldValue != $newValue && !empty(get_option('ka4wp_api_receive_partners', '')))
 		{
-			wp_schedule_event(time(), $newValue, 'ka4wp_cron_api_update_partners');
+			wp_clear_scheduled_hook('ka4wp_cron_api_update_partners');
+			wp_schedule_event(time(), $newValue ?: 'daily', 'ka4wp_cron_api_update_partners');
 		}
+	}
+	
+	/**
+	 * Load data from the active CRM adapter if the sync of the given setting is enabled
+	 *
+	 * @since    2.0.0
+	 * @param string $optionName Name of the enable setting
+	 * @param string $endpointKey Adapter endpoint to load
+	 *
+	 * @return array<mixed>|null Response body or null if disabled or failed
+	 */
+	private function ka4wp_load_from_adapter(string $optionName, string $endpointKey): ?array {
+		
+		if(empty(get_option($optionName, ''))) {
+			return null;
+		}
+		
+		$adapter = \KA4WP\Adapters\AdapterRegistry::instance()->get_active();
+		if(!$adapter) {
+			return null;
+		}
+		
+		$response = $adapter->request($endpointKey);
+		if(is_wp_error($response) || empty($response['body']) || !is_array($response['body'])) {
+			return null;
+		}
+		
+		return $response['body'];
 	}
 	
 	/**
@@ -351,23 +417,9 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_api_request_update_eventcategories() {
 		
-		$selectedApi = get_option('ka4wp_api_receive_eventcategories', '0') ?: '0';
-
-		if(empty($selectedApi))
-		{
-			return;
-		}
-		
-		$response = self::ka4wp_send_lead($selectedApi, 'load_eventcategories');
-
-		if(!empty($response['success']) && $response['response']['code'] == 200)
-		{
-			if(!empty($response['body']))
-			{
-				self::ka4wp_api_response_update_eventcategories($response['body']);
-			}
-		} else {
-			return;
+		$body = $this->ka4wp_load_from_adapter('ka4wp_api_receive_eventcategories', 'load_eventcategories');
+		if($body !== null) {
+			self::ka4wp_api_response_update_eventcategories($body);
 		}
 	}
 	
@@ -380,28 +432,14 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_api_request_update_impartingareas() {
 		
-		$selectedApi = get_option('ka4wp_api_receive_impartingareas', '0') ?: '0';
-
-		if(empty($selectedApi))
-		{
-			return;
-		}
-		
-		$response = self::ka4wp_send_lead($selectedApi, 'load_impartingareas');
-
-		if(!empty($response['success']) && $response['response']['code'] == 200)
-		{
-			if(!empty($response['body']))
-			{
-				self::ka4wp_api_response_update_impartingareas($response['body']);
-			}
-		} else {
-			return;
+		$body = $this->ka4wp_load_from_adapter('ka4wp_api_receive_impartingareas', 'load_impartingareas');
+		if($body !== null) {
+			self::ka4wp_api_response_update_impartingareas($body);
 		}
 	}
 	
 	/**
-	 * Saves the API response imparting areas in taxonomy database
+	 * Saves the API response partners in taxonomy database
 	 *
 	 * @since    1.2.0
 	 *
@@ -409,27 +447,12 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_api_request_update_partners() {
 		
-		$selectedApi = get_option('ka4wp_api_receive_partners', '0') ?: '0';
-
-		if(empty($selectedApi))
-		{
-			return;
-		}
-		
-		$response = self::ka4wp_send_lead($selectedApi, 'load_partners');
-
-		if(!empty($response['success']) && $response['response']['code'] == 200)
-		{
-			if(!empty($response['body']))
-			{
-				self::ka4wp_api_response_update_partners($response['body']);
-			}
-		} else {
-			return;
+		$body = $this->ka4wp_load_from_adapter('ka4wp_api_receive_partners', 'load_partners');
+		if($body !== null) {
+			self::ka4wp_api_response_update_partners($body);
 		}
 	}
-	
-	/**
+		/**
 	 * Saves the API response eventcategories in taxonomy database
 	 *
 	 * @since    1.0.0
@@ -674,6 +697,88 @@ class KA4WP_Admin {
 	}
 	
 	/**
+	 * Show hints that need the attention of the admin after the migration
+	 *
+	 * @since    2.0.0
+	 *
+	 * @return void
+	 */
+	public function ka4wp_migration_notices() {
+		
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+		
+		$optionName = \KA4WP\Migration\Migrator::OPTION_EXTRA_ACCOUNTS;
+		
+		if (isset($_GET['ka4wp_dismiss_migration']) && isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'ka4wp_dismiss_migration')) {
+			delete_option($optionName);
+			return;
+		}
+		
+		$accounts = get_option($optionName, []);
+		if (empty($accounts) || !is_array($accounts)) {
+			return;
+		}
+		
+		$titles = [];
+		foreach ($accounts as $account) {
+			$titles[] = esc_html($account['title'] ?: '#' . $account['id']);
+		}
+		
+		$dismissUrl = wp_nonce_url(add_query_arg('ka4wp_dismiss_migration', '1'), 'ka4wp_dismiss_migration');
+		
+		echo '<div class="notice notice-warning"><p>' . esc_html__('Kultur-API for WordPress now supports one account per CRM. The following legacy API entries use a different API key and were not migrated:', 'kultur-api-for-wp') . ' <strong>' . implode(', ', $titles) . '</strong> <a href="' . esc_url($dismissUrl) . '">' . esc_html__('Dismiss', 'kultur-api-for-wp') . '</a></p></div>';
+	}
+	
+	/**
+	 * Warn about migrated Contact Form 7 forms with a legacy integration
+	 *
+	 * @since    2.0.0
+	 *
+	 * @return void
+	 */
+	public function ka4wp_legacy_cf7_notice() {
+		
+		if (!current_user_can('manage_options') || !class_exists('WPCF7_ContactForm')) {
+			return;
+		}
+		
+		$optionName = \KA4WP\Migration\Migrator::OPTION_LEGACY_CF7_FORMS;
+		
+		if (isset($_GET['ka4wp_dismiss_cf7']) && isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'ka4wp_dismiss_cf7')) {
+			delete_option($optionName);
+			return;
+		}
+		
+		$formIds = get_option($optionName, []);
+		if (empty($formIds) || !is_array($formIds)) {
+			return;
+		}
+		
+		$links = [];
+		foreach ($formIds as $formId) {
+			$title = get_the_title((int) $formId);
+			if ($title === '') {
+				continue; // form no longer exists
+			}
+			$links[] = '<a href="' . esc_url(admin_url('admin.php?page=wpcf7&post=' . (int) $formId . '&action=edit')) . '">' . esc_html($title) . '</a>';
+		}
+		
+		if (empty($links)) {
+			delete_option($optionName);
+			return;
+		}
+		
+		$dismissUrl = wp_nonce_url(add_query_arg('ka4wp_dismiss_cf7', '1'), 'ka4wp_dismiss_cf7');
+		
+		echo '<div class="notice notice-warning"><p><strong>' . esc_html__('Kultur-API for WordPress: Contact Form 7 submissions are no longer sent to the CRM.', 'kultur-api-for-wp') . '</strong> '
+			. esc_html__('Please recreate the following forms as Fluent Forms feeds with the Kultur-API integration:', 'kultur-api-for-wp') . ' '
+			. wp_kses(implode(', ', $links), ['a' => ['href' => []]])
+			. ' <a href="' . esc_url($dismissUrl) . '">' . esc_html__('Dismiss', 'kultur-api-for-wp') . '</a></p></div>';
+	}
+	
+	/**
 	 * Check Plugin Dependencies
 	 *
 	 * @since    1.0.0
@@ -681,19 +786,9 @@ class KA4WP_Admin {
 	 * @return void
 	 */
 	public function ka4wp_verify_dependencies(){
-		if(is_multisite()){
-			if(!is_plugin_active_for_network('contact-form-7/wp-contact-form-7.php')){
-				echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
-	         	</div>';
-			}
-		}else{
-			if(!is_plugin_active('contact-form-7/wp-contact-form-7.php')){
-      			echo '<div class="notice notice-warning is-dismissible">
-	            	 <p>'.esc_html__( 'Kultur-API for WordPress integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ).'</p>
-	         	</div>';
-    		}
-    	}
+		if(!defined('FLUENTFORM')){
+			echo '<div class="notice notice-warning is-dismissible"><p>'.esc_html__( 'Kultur-API for WordPress integrations requires the Fluent Forms plugin to be installed and active.', 'kultur-api-for-wp' ).'</p></div>';
+		}
 	}
 	
 	/**
@@ -728,7 +823,8 @@ class KA4WP_Admin {
 			'hierarchical' => false,
 			'public' => false,  // it's not public, it shouldn't have it's own permalink, and so on
 			'publicly_queryable' => false,  // you should be able to query it
-			'show_ui' => true,  // you should be able to edit it in wp-admin
+			'show_ui' => false,
+			'show_in_menu' => false,
 			'show_in_nav_menus' => false,  // you shouldn't be able to add it to menus
 			'has_archive' => false,  // it shouldn't have archive page
 			'rewrite' => false,  // it shouldn't have rewrite rules
@@ -859,22 +955,6 @@ class KA4WP_Admin {
 	}
 	
 	/**
-	 * Register the Custom Meta Boxes
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return void
-	 */
-	public function ka4wp_metabox(){
-	    add_meta_box(
-	        'cf7anyapi-setting',
-	        __( 'Settings for Kultur-API integration', 'kultur-api-for-wp' ),
-	        array($this,'ka4wp_api_settings'),
-	        'ka4wp'
-	    );
-	}
-	
-	/**
 	 * Add settings links to plugin overview
 	 *
 	 * @since    1.0.0
@@ -885,8 +965,8 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_add_settings_link(array $links, string $file): array {
 		if($file === 'kultur-api-for-wp/kultur-api-for-wp.php' && current_user_can('manage_options')){
-			$url = admin_url('edit.php?post_type=ka4wp&page=ka4wp_settings');
-			$documentation = admin_url('edit.php?post_type=ka4wp&page=ka4wp_docs');
+			$url = admin_url('admin.php?page=ka4wp_settings');
+			$documentation = admin_url('admin.php?page=ka4wp_docs');
 			$links = (array) $links;
 			$links[] = sprintf('<a href="%s">%s</a>', $url, __('Settings','kultur-api-for-wp'));
 			$links[] = sprintf('<a href="%s">%s</a>', $documentation, __('Documentation','kultur-api-for-wp'));
@@ -895,16 +975,24 @@ class KA4WP_Admin {
 	}
 	
 	/**
-	 * Register the Submenu
+	 * Register the plugin admin menu and its pages.
 	 *
 	 * @since    1.0.0
 	 *
 	 * @return void
 	 */
 	public function ka4wp_register_submenu(){
+		add_menu_page(
+			__('Kultur-API', 'kultur-api-for-wp'),
+			__('Kultur-API', 'kultur-api-for-wp'),
+			'edit_posts',
+			'ka4wp',
+			[$this, 'ka4wp_menu_callback'],
+			'dashicons-tickets'
+		);
 
 		add_submenu_page(
-	        'edit.php?post_type=ka4wp',
+	        'ka4wp',
 	        __('Settings', 'kultur-api-for-wp'),
 	        __('Settings', 'kultur-api-for-wp'),
 	        'manage_options',
@@ -913,13 +1001,78 @@ class KA4WP_Admin {
 	    );
 
 	    add_submenu_page(
-	        'edit.php?post_type=ka4wp',
+	        'ka4wp',
 	        __('Documentation', 'kultur-api-for-wp'),
 	        __('Documentation', 'kultur-api-for-wp'),
 	        'manage_options',
 	        'ka4wp_docs',
 	        array(&$this,'ka4wp_submenu_docs_callback')
 	    );
+
+		add_submenu_page(
+			'ka4wp',
+			__('Event categories', 'kultur-api-for-wp'),
+			__('Event categories', 'kultur-api-for-wp'),
+			'manage_categories',
+			'edit-tags.php?taxonomy=eventcategories&post_type=ka4wp'
+		);
+
+		add_submenu_page(
+			'ka4wp',
+			__('Imparting areas', 'kultur-api-for-wp'),
+			__('Imparting areas', 'kultur-api-for-wp'),
+			'manage_categories',
+			'edit-tags.php?taxonomy=impartingareas&post_type=ka4wp'
+		);
+
+		add_submenu_page(
+			'ka4wp',
+			__('Partners', 'kultur-api-for-wp'),
+			__('Partners', 'kultur-api-for-wp'),
+			'manage_categories',
+			'edit-tags.php?taxonomy=partners&post_type=ka4wp'
+		);
+	}
+
+	public function ka4wp_menu_callback(): void {
+		echo '<div class="wrap"><h1>' . esc_html__('Kultur-API', 'kultur-api-for-wp') . '</h1>';
+		echo '<p>' . esc_html__('CRM connections are managed in WordPress Connectors. Use the submenu to manage plugin settings and synchronized data.', 'kultur-api-for-wp') . '</p></div>';
+	}
+
+	/**
+	 * Keep taxonomy pages under the Kultur-API menu although the legacy CPT editor is hidden.
+	 *
+	 * @param string $parentFile Current parent menu file
+	 *
+	 * @return string
+	 */
+	public function ka4wp_taxonomy_parent_file(string $parentFile): string {
+		$screen = get_current_screen();
+		$taxonomies = ['eventcategories', 'impartingareas', 'partners'];
+
+		if ($screen && in_array($screen->taxonomy, $taxonomies, true)) {
+			return 'ka4wp';
+		}
+
+		return $parentFile;
+	}
+
+	/**
+	 * Highlight the currently open taxonomy submenu.
+	 *
+	 * @param string|null $submenuFile Current submenu file
+	 *
+	 * @return string|null
+	 */
+	public function ka4wp_taxonomy_submenu_file($submenuFile) {
+		$screen = get_current_screen();
+		$taxonomies = ['eventcategories', 'impartingareas', 'partners'];
+
+		if (!$screen || !in_array($screen->taxonomy, $taxonomies, true)) {
+			return $submenuFile;
+		}
+
+		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=ka4wp';
 	}
 	
 	/**
@@ -944,47 +1097,6 @@ class KA4WP_Admin {
 		include dirname(__FILE__).'/partials/placeholder.php';
 	}
 	
-	/**
-	 * Register the CF7 API Integrations Tab
-	 *
-	 * @since    1.0.0
-	 * @param array<string, string|array<string, string>> $panels Array with the existing CF7 panels
-	 *
-	 * @return array<string, string|array<string, string>> $panels The full panels for CF7 integration
-	 */
-	public function ka4wp_cf7_add_api_integration(array $panels): array {
-		$integration_panel = array(
-            'title' => __('Kultur-API', 'kultur-api-for-wp'),
-            'callback' => array($this, 'ka4wp_api_settings_callback')
-        );
-
-        $panels["wpcf7-ka4wp"] = $integration_panel;
-        return $panels;
-	}
-	
-	/**
-	 * Display the CF7-API integration page
-	 *
-	 * @since    1.0.0
-	 * @param array $post Array with current Post Data
-	 *
-	 * @return void
-	 */
-	public function ka4wp_api_settings_callback($post){
-		include dirname(__FILE__).'/partials/ka4wp-form-options.php';
-	}
-	
-	/**
-	 * Registered Metaboxes Fields
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return void
-	 */
-	public static function ka4wp_api_settings() {
-		include dirname(__FILE__).'/partials/ka4wp-admin-display.php';
-	}
-		
 	/**
 	 * Render taxonomy partners editor
 	 *
@@ -1020,13 +1132,15 @@ class KA4WP_Admin {
 	 */
 	public function ka4wp_register_settings() {
 		
-		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_eventcategories', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_post_published']]);
+		register_setting('ka4wp_settings_integrations', 'ka4wp_crm_type', ['default' => \KA4WP\Adapters\AdapterRegistry::DEFAULT_ADAPTER, 'type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_crm_type']]);
+		
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_eventcategories', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_flag']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_eventcategories_recurrence', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_cron_recurrence']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_keep_deleted_eventcategories', ['default' => 0, 'type' => 'integer']);
-		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_impartingareas', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_post_published']]);
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_impartingareas', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_flag']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_impartingareas_recurrence', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_cron_recurrence']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_keep_deleted_impartingareas', ['default' => 0, 'type' => 'integer']);
-		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_partners', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_post_published']]);
+		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_partners', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_flag']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_receive_partners_recurrence', ['type' => 'string', 'sanitize_callback' => [$this, 'ka4wp_settings_validate_cron_recurrence']]);
 		register_setting('ka4wp_settings_integrations', 'ka4wp_api_keep_deleted_partners', ['default' => 0, 'type' => 'integer']);
 		register_setting('ka4wp_settings_miscellaneous', 'ka4wp_prevent_deletion', ['default' => 0, 'type' => 'integer']);
@@ -1040,9 +1154,22 @@ class KA4WP_Admin {
 			);
 			
 		add_settings_field(
+				'ka4wp_crm_type',
+				esc_html__('CRM system', 'kultur-api-for-wp'),
+				array($this, 'ka4wp_settings_render_crm_type'),
+				'ka4wp_settings_integrations',
+				'ka4wp_settings_section_integrations',
+				[
+					'label_for' => 'ka4wp_crm_type',
+					'option_group' => 'ka4wp_settings_integrations',
+					'name' => 'ka4wp_crm_type',
+				]
+			);
+			
+		add_settings_field(
 				'ka4wp_api_receive_eventcategories',
 				esc_html__('Retrive event categories', 'kultur-api-for-wp'),
-				array($this, 'ka4wp_settings_render_publish_api'),
+				array($this, 'ka4wp_settings_render_checkbox'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
@@ -1081,7 +1208,7 @@ class KA4WP_Admin {
 		add_settings_field(
 				'ka4wp_api_receive_impartingareas',
 				esc_html__('Retrive imparting areas', 'kultur-api-for-wp'),
-				array($this, 'ka4wp_settings_render_publish_api'),
+				array($this, 'ka4wp_settings_render_checkbox'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
@@ -1120,7 +1247,7 @@ class KA4WP_Admin {
 		add_settings_field(
 				'ka4wp_api_receive_partners',
 				esc_html__('Retrive partners', 'kultur-api-for-wp'),
-				array($this, 'ka4wp_settings_render_publish_api'),
+				array($this, 'ka4wp_settings_render_checkbox'),
 				'ka4wp_settings_integrations',
 				'ka4wp_settings_section_integrations',
 				[
@@ -1206,33 +1333,45 @@ class KA4WP_Admin {
 	}
 	
 	/**
-	 * Render possible posttypes from APIs
+	 * Render the CRM system selection
 	 *
-	 * @since    1.0.0
+	 * @since    2.0.0
 	 * @param array<string, string|int> $args Array with setting configuration data
 	 *
 	 * @return void
 	 */
-	public function ka4wp_settings_render_publish_api(array $args): void {
+	public function ka4wp_settings_render_crm_type(array $args): void {
 		
-		$option = get_option($args['name'], '0');
+		$active = (string) get_option($args['name'], \KA4WP\Adapters\AdapterRegistry::DEFAULT_ADAPTER);
+		
+		echo '<select id="' . esc_attr($args['name']) . '" name="' . esc_attr($args['name']) . '">';
+		foreach (\KA4WP\Adapters\AdapterRegistry::instance()->all() as $adapter) {
+			echo '<option value="' . esc_attr($adapter->get_id()) . '" ' . selected($adapter->get_id(), $active, false) . '>' . esc_html($adapter->get_label()) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . wp_kses(
+			sprintf(
+				/* translators: %s: link to the connectors screen */
+				__('Enter the API key under %s.', 'kultur-api-for-wp'),
+				'<a href="' . esc_url(admin_url('options-connectors.php')) . '">' . esc_html__('Settings > Connectors', 'kultur-api-for-wp') . '</a>'
+			),
+			['a' => ['href' => []]]
+		) . '</p>';
+	}
 	
-		$posts = get_posts([
-						'post_type' => 'ka4wp',
-						'post_status' => 'publish',
-						'numberposts' => -1,
-						'order'    => 'ASC'
-					]);
-					
-		$output = '<select id="ka4wp-settings-'.esc_html($args['name']).'" name="'.esc_html($args['name']).'">';
-		$output .= '<option value="0" '.selected('0', $option, false).'>'.esc_html__('DISABLED', 'kultur-api-for-wp').'</option>';
-			foreach($posts as $post)
-			{
-				$output .= '<option value="'.$post->ID.'" '.selected($post->ID, $option, false).'>'.esc_attr($post->post_title).'</option>';
-			}
-		$output .= '</select>';
+	/**
+	 * Only allow registered adapters as CRM type
+	 *
+	 * @since    2.0.0
+	 * @param mixed $input Submitted value
+	 *
+	 * @return string
+	 */
+	public function ka4wp_settings_validate_crm_type($input): string {
 		
-		echo wp_kses($output, ['select' => ['id' => [], 'name' => []], 'option' => ['value' => [], 'selected' => []]]);
+		$input = sanitize_key((string) $input);
+		
+		return \KA4WP\Adapters\AdapterRegistry::instance()->get($input) ? $input : \KA4WP\Adapters\AdapterRegistry::DEFAULT_ADAPTER;
 	}
 	
 	/**
@@ -1303,19 +1442,18 @@ class KA4WP_Admin {
 	}
 	
 	/**
-	 * Validate settings if selected post is published
+	 * Validate checkbox settings, returns "1" or an empty string
 	 *
-	 * @since    1.2.0
-	 * @param string $input Setting value after changing
+	 * @since    2.0.0
+	 * @param mixed $input Setting value after changing
 	 *
-	 * @return int
+	 * @return string
 	 */
-	public function ka4wp_settings_validate_post_published($input): int {
+	public function ka4wp_settings_validate_flag($input): string {
 
-		return ('publish' !== get_post_status(absint($input))) ? 0 : absint($input);
+		return empty($input) ? '' : '1';
 	}
-	
-	/**
+		/**
 	 * Validate settings if the cron recurrence is valid
 	 *
 	 * @since    1.2.0
@@ -1329,181 +1467,6 @@ class KA4WP_Admin {
 	}
 	
 	/**
-	 * Retrieve the all current Post API metadata
-	 *
-	 * @since     1.0.0
-	 * @param int $post_id Id of the selected Post
-	 *
-	 * @return    array<string, string|int>
-	 */
-	public function ka4wp_get_api_options($post_id) {
-		
-		$options = [];
-		if(!empty($post_id))
-		{
-			$options['ka4wp_api_type'] = get_post_meta(absint($post_id),'ka4wp_api_type',true);
-			$options['ka4wp_api_key'] = get_post_meta(absint($post_id),'ka4wp_api_key',true);
-			$options['ka4wp_base_url'] = get_post_meta(absint($post_id),'ka4wp_base_url',true);
-			$options['ka4wp_basic_auth'] = get_post_meta(absint($post_id),'ka4wp_basic_auth',true);
-			$options['ka4wp_bearer_auth'] = get_post_meta(absint($post_id),'ka4wp_bearer_auth',true);
-			$options['ka4wp_input_type'] = get_post_meta(absint($post_id),'ka4wp_input_type',true);
-			$options['ka4wp_method'] = get_post_meta(absint($post_id),'ka4wp_method',true);
-			$options['ka4wp_form_field'] = get_post_meta(absint($post_id),'ka4wp_form_field',true);
-			$options['ka4wp_header_request'] = get_post_meta(absint($post_id),'ka4wp_header_request',true);
-		}
-
-		return $options;
-	}
-	
-	/**
-	 * Update the Metaboxes value on Post Save
-	 *
-	 * @since    1.0.0
-	 * @param int $post_id Id of the selected Post
-	 * @param WP_Post $post Post object
-	 * @param bool $update Whether this is an existing post being updated
-	 *
-	 * @return void
-	 */
-	public static function ka4wp_update_API_settings($post_id, $post, $update){
-		if($post->post_type == 'ka4wp'){
-			$status = 'false';
-			if(isset($_POST['ka4wp_cpt_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['ka4wp_cpt_nonce'])), 'ka4wp_cpt_nonce')){
-				
-				switch(sanitize_text_field($_POST['ka4wp_api_type']))
-				{
-					default:
-						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: '';
-					break;
-					case 'wunsch.events':
-						$options['ka4wp_api_key'] = sanitize_text_field($_POST['ka4wp_api_key']) ?: '';
-					break;
-					case 'other':
-						$options['ka4wp_base_url'] = sanitize_url($_POST['ka4wp_base_url']);
-						$options['ka4wp_input_type'] = sanitize_text_field($_POST['ka4wp_input_type']) ?: 'json';
-						$options['ka4wp_method'] = sanitize_text_field($_POST['ka4wp_method']) ?: 'POST';
-						$options['ka4wp_header_request'] = sanitize_text_field($_POST['ka4wp_header_request']);
-					break;
-				}
-				
-				$options['ka4wp_api_type'] = sanitize_text_field($_POST['ka4wp_api_type']);
-				
-				#TODO: validate fields after submit
-				
-				foreach($options as $options_key => $options_value){
-					$response = update_post_meta(absint($post_id), $options_key, $options_value );
-    			}
-				if($response){
-					$status = 'true';
-				}
-				
-				//check if api is available
-				if(sanitize_text_field($_POST['ka4wp_api_type']) === 'wunsch.events' && $post->post_status == 'publish')
-				{
-					
-					$response = self::ka4wp_send_lead($post_id, 'check_api');
-					
-					if(!empty($response['success']) && $response['response']['code'] == 200)
-					{
-						update_post_meta($post_id, 'check_result', 1);
-						update_post_meta($post_id, 'check_result_message', sanitize_text_field($response['body']));
-					} else {
-						update_post_meta($post_id, 'check_result', 0);
-						update_post_meta($post_id, 'check_result_message', !empty($response['error']) ? sanitize_text_field($response['error']) : sanitize_text_field($response['body']));
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Saves the API settings from the CF7 API Integrations Tab
-	 *
-	 * @since    1.0.0
-	 * @param array<string, string> $properties Given properties
-	 * @param WPCF7_ContactForm $contact_form Current contact form object
-	 *
-	 * @return array<string, string>
-	 */
-	public function add_contact_form_API_properties(array $properties, $contact_form): array { //@phpstan-ignore class.notFound
-
-		$properties["ka4wp_api_integrations"] = get_post_meta(absint($contact_form->id()), '_ka4wp_api_integrations', true); //@phpstan-ignore class.notFound
-		return $properties;
-	}
-	
-	/**
-	 * Saves the API settings from the CF7 API Integrations Tab
-	 *
-	 * @since    1.0.0
-	 * @param WPCF7_ContactForm $contact_form Current contact form object
-	 *
-	 * @return void
-	 */
-	public function save_contact_form_api_details($contact_form) { //@phpstan-ignore class.notFound
-		#if(isset($_POST['_wpnonce']) && wpcf7_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])))) // @phpstan-ignore function.notFound
-		#{
-			if(is_array($_POST['wpcf7-ka4wp']))
-			{
-				$properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
-				
-				$options = [];
-				foreach($_POST['wpcf7-ka4wp'] as $key => $val)
-				{
-					$options[sanitize_text_field($key)] = sanitize_text_field($val);
-				}
-				$properties['ka4wp_api_integrations'] = $options;
-				$contact_form->set_properties($properties); //@phpstan-ignore class.notFound
-			}
-		#}
-	}
-	
-	/**
-	 * Ajax Endpoint to load specific API details
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return void
-	 */
-	public function ka4wp_get_selected_endpoint()
-	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
-		
-		$predefinedMappings = [];
-		foreach($defaultsOptions as $typeKey => $typeValues)
-		{
-			if(!empty($typeValues['options']))
-			{
-				$predefinedMappings[] = ['name' => esc_attr($typeValues['name']), 'value' => esc_attr($typeKey)];
-			}
-		}
-		
-		wp_send_json(['mappings' => $predefinedMappings, 'api_type' => get_post_meta(absint($_POST['post_id']), 'ka4wp_api_type', true) ?: 'none', 'predefined' => $predefinedMappings ? 1 : 0]);
-	}
-	
-	/**
-	 * API Endpoint to load selected predefined mapping
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return void
-	 */
-	public static function ka4wp_get_predefined_mapping()
-	{	
-		$defaultsOptions = self::ka4wp_get_endpoint_defaults(absint($_POST['post_id']));
-		
-		$predefinedMappings = [];
-		if(!empty($defaultsOptions[sanitize_text_field($_POST['mapping_key'])]['options']))
-		{
-			foreach($defaultsOptions[sanitize_text_field($_POST['mapping_key'])]['options'] as $typeKey => $typeValues)
-			{
-				$predefinedMappings[] = ['name' => esc_attr($typeValues['name']), 'value' => esc_attr($typeValues['value'])];
-			}
-		}
-		
-		wp_send_json(['mappings' => $predefinedMappings]);
-	}
-	
-	/**
 	 * API Endpoint to load selected predefined mapping
 	 *
 	 * @since    1.0.0
@@ -1512,229 +1475,27 @@ class KA4WP_Admin {
 	 * @return array
 	 */
 	public static function ka4wp_get_endpoint_defaults($post_id = 0)
-	{			
+	{
 		$options = [];
-		switch(get_post_meta($post_id, 'ka4wp_api_type', true))
-		{
-			default:
-			case 'other':
-				$options = [];
-					#apply_filters('ka4wp_endpoint_defaults');
-			break;
-			case 'wunsch.events':
-				$options = [
-					'submit_cultureguest' => [
-							'name' => esc_html__('Registration of new culture guests', 'kultur-api-for-wp'),
-							'description' => esc_html__('Interface for creating new cultural guests.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/cultureguest/create',
-							'http_method' => 'POST',
-							'options' => [
-								['name' => esc_html__('Firstname', 'kultur-api-for-wp'), 'value' => 'firstname'],
-								['name' => esc_html__('Lastname', 'kultur-api-for-wp'), 'value' => 'lastname'],
-								['name' => esc_html__('Gender', 'kultur-api-for-wp'), 'value' => 'gender'],
-								['name' => esc_html__('Street', 'kultur-api-for-wp'), 'value' => 'street'],
-								['name' => esc_html__('Street number', 'kultur-api-for-wp'), 'value' => 'streetnumber'],
-								['name' => esc_html__('Zip code', 'kultur-api-for-wp'), 'value' => 'zipcode'],
-								['name' => esc_html__('City', 'kultur-api-for-wp'), 'value' => 'city'],
-								['name' => esc_html__('Fixed line number', 'kultur-api-for-wp'), 'value' => 'phone'],
-								['name' => esc_html__('Mobile number', 'kultur-api-for-wp'), 'value' => 'mobilephone'],
-								['name' => esc_html__('Date of birth', 'kultur-api-for-wp'), 'value' => 'birthdate'],
-							]
-						],
-					'submit_cultureguestgroup' => [
-							'name' => esc_html__('Registration of new culture guests as a group (for organizations)', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface for creating new cultural guests as group.', 'kultur-api-for-wp'),  
-							'endpoint_path' => '/culturegroup/create',
-							'http_method' => 'POST',
-							'options' => [
-								['name' => 'Vorname', 'value' => 'firstname'],
-								['name' => 'Nachname', 'value' => 'lastname'],
-							]
-						],
-					'submit_organisationmember' => [
-							'name' => esc_html__('Register as an organization member', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface for creating new members in the organization.', 'kultur-api-for-wp'),   
-							'endpoint_path' => '/organizationmember/create',
-							'http_method' => 'POST',
-							'options' => [
-								['name' => esc_html__('Company name', 'kultur-api-for-wp'), 'value' => 'organizationname'],
-								['name' => esc_html__('Firstname', 'kultur-api-for-wp'), 'value' => 'firstname'],
-								['name' => esc_html__('Lastname', 'kultur-api-for-wp'), 'value' => 'lastname'],
-								['name' => esc_html__('Gender', 'kultur-api-for-wp'), 'value' => 'gender'],
-								['name' => esc_html__('Email address', 'kultur-api-for-wp'), 'value' => 'email'],
-								['name' => esc_html__('Street', 'kultur-api-for-wp'), 'value' => 'street'],
-								['name' => esc_html__('Street number', 'kultur-api-for-wp'), 'value' => 'streetnumber'],
-								['name' => esc_html__('Zip code', 'kultur-api-for-wp'), 'value' => 'zipcode'],
-								['name' => esc_html__('City', 'kultur-api-for-wp'), 'value' => 'city'],
-								['name' => esc_html__('Date of birth', 'kultur-api-for-wp'), 'value' => 'birthdate'],
-								['name' => esc_html__('Fixed line number', 'kultur-api-for-wp'), 'value' => 'phone'],
-								['name' => esc_html__('Mobile number', 'kultur-api-for-wp'), 'value' => 'mobilephone'],
-								['name' => esc_html__('IBAN', 'kultur-api-for-wp'), 'value' => 'iban'],
-								['name' => esc_html__('BIC', 'kultur-api-for-wp'), 'value' => 'bic'],
-								['name' => esc_html__('Name of the Accountholder', 'kultur-api-for-wp'), 'value' => 'accountholder'],
-								['name' => esc_html__('Bankname', 'kultur-api-for-wp'), 'value' => 'bankname'],
-								['name' => esc_html__('Donation receipt', 'kultur-api-for-wp'), 'value' => 'donationreceipt'],
-								['name' => esc_html__('Amount', 'kultur-api-for-wp'), 'value' => 'amount'],
-								['name' => esc_html__('Maturity cycle', 'kultur-api-for-wp'), 'value' => 'maturitycycle'],
-							]
-						],
-					'check_api' => [
-							'name' => esc_html__('Check the API endpoint health', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface to check whether the setup was successful and the other system responds correctly.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/check', 
-							'options' => []
-						],
-					'load_eventcategories' => [
-							'name' => esc_html__('Load event categories ', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface for querying the event categories.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/eventcategories/get', 
-							'options' => []
-						],
-					'load_impartingareas' => [
-							'name' => esc_html__('Load imparting areas', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface for querying the imparting areas.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/impartingareas/get', 
-							'options' => []
-						],
-					'load_partners' => [
-							'name' => esc_html__('Load partners', 'kultur-api-for-wp'), 
-							'description' => esc_html__('Interface for querying partners.', 'kultur-api-for-wp'), 
-							'endpoint_path' => '/partners/get', 
-							'options' => []
-						],
-					];
-			break;
+		if (get_post_meta($post_id, 'ka4wp_api_type', true) !== 'wunsch.events') {
+			return $options;
 		}
+
+		// Deprecated since 2.0.0: legacy format built from the adapter definition
+		$adapter = \KA4WP\Adapters\AdapterRegistry::instance()->get('wunsch_events');
+		foreach ($adapter ? $adapter->get_endpoints() : [] as $key => $endpoint) {
+			$options[$key] = [
+				'name' => $endpoint['name'],
+				'description' => $endpoint['description'] ?? '',
+				'endpoint_path' => $endpoint['path'],
+				'http_method' => $endpoint['method'] ?? 'GET',
+				'options' => $endpoint['fields'] ?? [],
+			];
+		}
+
 		return $options;
 	}
 	
-	/**
-	 * Prepare formdata for API submit
-	 *
-	 * @since    1.0.0
-	 *
-	 * @return void
-	 */
-	public function ka4wp_prepare_formdata_for_api()
-	{	
-		//prepare upload directory
-		$uploadDir = wp_upload_dir();
-		$pluginUploadDir = trailingslashit($uploadDir['basedir']).'ka4wp_temp';
-		if (!is_dir($pluginUploadDir))
-		{
-			wp_mkdir_p($pluginUploadDir);
-		}
-		
-		//prepare form fields
-		$CF7Submission = WPCF7_Submission::get_instance(); //@phpstan-ignore class.notFound
-		$posted_data = $CF7Submission->get_posted_data();
-		$uploaded_files = $CF7Submission->uploaded_files();
-		$ContactForm = $CF7Submission->get_contact_form();
-		
-		//prepare form meta information
-		$formInformation = [
-					'timestamp' => $CF7Submission->get_meta('timestamp'),
-					'remote_ip' => $CF7Submission->get_meta('remote_ip'),
-					'remote_port' => $CF7Submission->get_meta('remote_port'),
-					'user_agent' => $CF7Submission->get_meta('user_agent'),
-					'url' => $CF7Submission->get_meta('url'),
-					'current_user_id' => $CF7Submission->get_meta('current_user_id'),
-					'form_id' => $CF7Submission->get_meta('container_post_id'),
-				];
-		$posted_data['form_information'] = $formInformation;		
-
-		//prepare form details
-		$form_properties = $ContactForm->get_properties();
-		$form_fields = $ContactForm->scan_form_tags();
-		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
-		
-		//stop processing when api is disabled
-		if(empty($api_settings) || empty($api_settings["send_to_api"]))
-		{
-			error_log('API-Data: API deaktiviert.');
-			return;#TODO: Fehlerhandling fehlt
-		}
-		
-		//save logs when enabled
-		if(!empty($api_settings["logging"]))
-		{
-			error_log('API-Data: Logging aktiviert.');
-			#TODO: Implement logging
-		}
-		
-		if('publish' !== get_post_status($api_settings["apiendpoint"]))
-		{
-			error_log('API-Data: Schnittstelle nicht öffentlicht.');
-			return; #TODO: Fehlerhandling fehlt
-		}
-		$posted_data['post_id'] = $api_settings["apiendpoint"];
-		
-		//handle uploaded files and prepare uploads for api transfer
-		if(!empty($uploaded_files))
-		{
-			foreach($uploaded_files as $key => $file) {
-				$fileExtension = pathinfo($file[0], PATHINFO_EXTENSION);
-				$originalFilename = pathinfo($file[0], PATHINFO_FILENAME);
-				$fileName = uniqid('ka4wp-').'.'.$fileExtension;
-				copy($file[0], $pluginUploadDir.'/'.$fileName);	
-				$posted_data['files'][$key] = ['filename' => $fileName, 'originalFilename' => $originalFilename, 'extension' => $fileExtension, 'file' => base64_encode(file_get_contents($file[0]))];
-			}
-		}
-		
-		$api_values = [];
-		foreach($form_fields as $form_fields_value){
-			if($form_fields_value->basetype != 'submit' && !empty($api_settings['mapping-'.$form_fields_value->raw_name]))
-			{	
-				if($form_fields_value->basetype == 'file')
-				{
-					$api_values['files'][$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data['files'][$form_fields_value->raw_name] ?? [];
-				} else {
-					$api_values['data'][$api_settings['mapping-'.$form_fields_value->raw_name]] = $posted_data[$form_fields_value->raw_name] ?? '';
-				}
-			}
-		}
-		
-		if(empty($api_values))
-		{
-			error_log('API-Data: Keine Werte vorhanden.');
-			return; #TODO: Implement logging
-		}
-		
-		self::ka4wp_send_lead($api_settings["apiendpoint"], $api_settings["predefined-mapping"] ?? '', $api_values);
-		
-		// delete uploaded files
-		if(!empty($uploaded_files)){
-			foreach($uploaded_files as $key => $file) {
-				wp_delete_file( $pluginUploadDir.'/'.$posted_data['files'][$key]['filename']);
-			}
-		}
-		
-		error_log('API-Data: '.wp_json_encode($api_values));
-		
-		wp_reset_postdata();
-	}
-	
-	/**
-	 * Checks if email should skipped
-	 *
-	 * @since    1.0.0
-	 * @param bool $skip_mail If mail sending should skipped
-	 * @param WPCF7_ContactForm $contact_form Current contact form object
-	 *
-	 * @return bool
-	 */
-	public function ka4wp_check_skip_mail($skip_mail, $contact_form) { //@phpstan-ignore class.notFound
-		
-		$form_properties = $contact_form->get_properties(); //@phpstan-ignore class.notFound
-		$api_settings = $form_properties['ka4wp_api_integrations'] ?? [];
-		
-		if(!empty($api_settings['stop_email']) && !empty($api_settings["send_to_api"]))
-		{
-			$skip_mail = true;
-		}
-		return $skip_mail;
-	}
-		
 	/**
 	 * Load WUNSCH.events default API values
 	 *
@@ -1745,18 +1506,19 @@ class KA4WP_Admin {
 	 * @return array
 	 */
 	public static function ka4wp_api_options_wunschevents($api_action, $postid) {
-		$api_options = array(
-				'url'     		=> in_array(wp_get_development_mode(), ['plugin', 'all']) ? 'https://api.testserver.wunschevents.de/v1' : 'https://api.wunsch.events/v1',
-				'input_type'	=> 'JSON',
-				'headers'		=> ['Authorization' => 'Basic '.get_post_meta(absint($postid), 'ka4wp_api_key', true)],
-				'auth_token'	=> get_post_meta(absint($postid), 'ka4wp_api_key', true),
-			);
-			
-		$defaults = self::ka4wp_get_endpoint_defaults(absint($postid));
-		$api_options['url'] .= $defaults[$api_action]['endpoint_path'];
-		$api_options['http_method'] = $defaults[$api_action]['http_method'] ?? 'GET';
+		_deprecated_function(__METHOD__, '2.0.0', 'KA4WP\Adapters\AdapterInterface');
 		
-		return $api_options;
+		$adapter = \KA4WP\Adapters\AdapterRegistry::instance()->get('wunsch_events');
+		$credentials = $adapter ? $adapter->get_credentials() : [];
+		$endpoints = $adapter ? $adapter->get_endpoints() : [];
+		
+		return array(
+			'url'         => ($adapter ? $adapter->get_base_url() : '') . ($endpoints[$api_action]['path'] ?? ''),
+			'input_type'  => 'JSON',
+			'headers'     => $adapter ? ['Authorization' => 'Basic ' . ($credentials['api_key'] ?? '')] : [],
+			'auth_token'  => $credentials['api_key'] ?? '',
+			'http_method' => $endpoints[$api_action]['method'] ?? 'GET',
+		);
 	}
 	
 	/**
@@ -1776,123 +1538,26 @@ class KA4WP_Admin {
 			return ['success' => false, 'error' => esc_html__('The selected API is not yet published.', 'kultur-api-for-wp')];
 		}
 
-		//define default args
-		$args = array(
-				'timeout'     => 5,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'user-agent'  => 'WordPress/' . get_bloginfo('version') . '; ' . home_url(),
-				'blocking'    => true,
-				'headers'     => array(),
-				'cookies'     => array(),
-				'body'        => null,
-				'compress'    => false,
-				'decompress'  => true,
-				'sslverify'   => true,
-				'stream'      => false,
-			);
-		
-		$api_options = [];
-		switch(get_post_meta($postid, 'ka4wp_api_type', true)) {
-			default:
-			case 'other':
-				$api_options['http_method'] = get_post_meta($postid, 'ka4wp_http_method', true) ?: 'POST';			
-				$api_options['url'] = get_post_meta($postid, 'ka4wp_url', true) ?: '';							
-				$api_options['input_type'] = get_post_meta($postid, 'ka4wp_input_type', true) ?: 'JSON';							
-				$api_options['header_request'] = json_decode(get_post_meta($postid, 'ka4wp_api_type', true)) ?: [];				
-			break;
-			case 'wunsch.events':
-				$api_options = self::ka4wp_api_options_wunschevents($api_action, $postid);
-				$api_options['header_request'] = array_merge($args['headers'], $api_options['headers']);
-			break;
+		if ('wunsch.events' !== get_post_meta($postid, 'ka4wp_api_type', true)) {
+			return ['success' => false, 'error' => esc_html__('The selected API is not available.', 'kultur-api-for-wp')];
+		}
+
+		$adapter = \KA4WP\Adapters\AdapterRegistry::instance()->get('wunsch_events');
+		if (!$adapter) {
+			return ['success' => false, 'error' => esc_html__('The selected API is not available.', 'kultur-api-for-wp')];
 		}
 		
-		if(!empty($api_options['header_request'])){
-      		$args['headers'] = $api_options['header_request'];
-      	}
-		
-		if(!empty($api_options['basic_auth'])){
-        	$args['headers']['Authorization'] = 'Basic ' . base64_encode($api_options['basic_auth_username'] ?: ''.':'.$api_options['basic_auth_password'] ?: '');
-      	}
-      
-      	if(!empty($api_options['bearer_auth'])){
-    		$args['headers']['Authorization'] = 'Bearer ' . $api_options['bearer_auth'];
-      	}
-
-		if($api_options['http_method'] == 'GET'){
-			
-			if($api_options['input_type'] == 'params'){
-				
-				if(!empty($data)) {
-					$data_string = http_build_query($data);
-
-					$api_options['url'] .= stripos($api_options['url'],'?') !== false ? '&'.$data_string : '?'.$data_string;
-				}
-			}
-			else{
-				$args['headers']['Content-Type'] = 'application/json';
-				if(!empty($data)) {
-					$json = wp_json_encode($data);
-
-					if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
-						return ['success' => false, 'error' => $json->get_error_message()];
-					} else {
-						$args['body'] = $json;
-					}
-				}
-			}
-			
-			$result = wp_remote_get($api_options['url'], $args);			
-		} else {
-
-			if($api_options['input_type'] == "json"){
-
-        		$args['headers']['Content-Type'] = 'application/json';
-        		$json = wp_json_encode($data);
-        	
-        		if(is_wp_error($json)){ //@phpstan-ignore function.impossibleType
-          			return ['success' => false, 'error' => $json->get_error_message()];
-        		} else{
-          			$args['body'] = $json;
-    			}
-      		} else {
-				$args['body'] = $data;
-			}
-			
-      		$result = wp_remote_post($api_options['url'], $args);      		
+		$result = $adapter->request((string) $api_action, (array) $data);
+		if (is_wp_error($result)) {
+			$errorData = $result->get_error_data();
+			return [
+				'success' => false,
+				'error'   => $result->get_error_message(),
+				'body'    => is_array($errorData) ? ($errorData['body'] ?? null) : null,
+			];
 		}
 		
-		return self::ka4wp_api_handle_result($result);
-	}
-	
-	/**
-	 * Child function to convert API response into correct format
-	 *
-	 * @since    1.0.0
-	 * @param WP_Error|array<string, string|array<string, string|int>> $response Data to get from api call
-	 * @param int $log_id The id of the operation to log results
-	 *
-	 * @return array<string, string|bool> 
-	 */
-	public static function ka4wp_api_handle_result($response, $log_id = 0) {
-		
-		if(!is_wp_error($response)) //@phpstan-ignore function.impossibleType
-		{
-			if(strpos($response['headers']['Content-Type'], 'application/json') !== false)
-			{
-				$response['body'] = json_decode(wp_remote_retrieve_body($response), true);
-			} else {
-				$response['body'] = wp_remote_retrieve_body($response);
-			}
-			$response['success'] = true;
-			
-			return $response;
-		} else {
-			$result['error'] = $response->get_error_message();
-			$result['success'] = false;
-			
-			return $result;
-		}
+		return ['success' => true, 'response' => ['code' => $result['code']], 'body' => $result['body']];
 	}
 
 }

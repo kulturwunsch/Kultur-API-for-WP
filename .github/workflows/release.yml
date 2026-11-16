@@ -8,9 +8,28 @@ on:
     types: [released]
 
 jobs:
+  test:
+    name: Run PHPUnit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit:9.6
+          coverage: none
+      - name: Run unit tests
+        run: phpunit -c tests/phpunit.xml
+
   deploy:
     name: Deploy to WP.org
     runs-on: ubuntu-latest 
+    needs: test
     steps:
       - name: Install Subversion
         run: sudo apt-get update && sudo apt-get install -y subversion
