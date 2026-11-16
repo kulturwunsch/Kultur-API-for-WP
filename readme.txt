@@ -1,7 +1,7 @@
 === Kultur-API for WordPress ===
 Contributors: kulturwunsch,juventiner
 Donate link: https://kulturwunsch.de/spenden/
-Tags: fluent forms, crm, api, events, culture, multilingual
+Tags: fluent forms, crm, api, events, culture
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1

@@ -16,19 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	//prepare meta_query filter for partner types
 	if($shortcode_options['partnertype'] != '*') // @phpstan-ignore variable.undefined
 	{
-		$meta_query = [];
+		$ka4wp_meta_query = [];
 		foreach(explode(",", $shortcode_options['partnertype']) as $type) // @phpstan-ignore variable.undefined
 		{
-			$meta_query[] = [
+			$ka4wp_meta_query[] = [
 						'key'       => $type,
 						'value'     => 1,
 						'compare'   => '='
 						];
 		}
 		
-		if(count($meta_query) > 1)
+		if(count($ka4wp_meta_query) > 1)
 		{
-			$meta_query['relation'] = 'OR';
+			$ka4wp_meta_query['relation'] = 'OR';
 		}
 	}
 	
@@ -37,37 +37,37 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				'orderby' => 'name',
 				'order' => 'ASC',
 				'hide_empty' => false,
-				'meta_query' => $meta_query ?? [],
+				'meta_query' => $ka4wp_meta_query ?? [],
 			));
 			
 	if(strtolower($shortcode_options['style']) != 'table') // @phpstan-ignore variable.undefined
 	{
 		// calculate xs Grid
 		try {
-			$grid_xs = 12 / absint($shortcode_options['grid_xs']); // @phpstan-ignore variable.undefined
+			$ka4wp_grid_xs = 12 / absint($shortcode_options['grid_xs']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_xs = 2; // @phpstan-ignore variable.undefined
+			$ka4wp_grid_xs = 2; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate sm Grid
 		try {
-			$grid_sm = 12 / absint($shortcode_options['grid_sm']); // @phpstan-ignore variable.undefined
+			$ka4wp_grid_sm = 12 / absint($shortcode_options['grid_sm']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_sm = 3; // @phpstan-ignore variable.undefined
+			$ka4wp_grid_sm = 3; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate lg Grid
 		try {
-			$grid_lg = 12 / absint($shortcode_options['grid_lg']); // @phpstan-ignore variable.undefined
+			$ka4wp_grid_lg = 12 / absint($shortcode_options['grid_lg']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_lg = 4; // @phpstan-ignore variable.undefined
+			$ka4wp_grid_lg = 4; // @phpstan-ignore variable.undefined
 		}
 		
 		// calculate xl Grid
 		try {
-			$grid_xl = 12 / absint($shortcode_options['grid_xl']); // @phpstan-ignore variable.undefined
+			$ka4wp_grid_xl = 12 / absint($shortcode_options['grid_xl']); // @phpstan-ignore variable.undefined
 		} catch(DivisionByZeroError $e){
-			$grid_xl = 4; // @phpstan-ignore variable.undefined
+			$ka4wp_grid_xl = 4; // @phpstan-ignore variable.undefined
 		}
 	}
 			
@@ -102,7 +102,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 					<tr>
 						<?php if(!empty($shortcode_options['view_logo'])) { ?>
-							<td><?php if(!empty($image)) { print '<img src="'.$image.'" alt="">'; } ?></td>
+							<td><?php if(!empty($image)) { print '<img src="'.esc_url($image).'" alt="">'; } ?></td>
 						<?php } ?>
 						<td><?php print esc_html($term->name); ?></td>
 						<?php if(!empty($shortcode_options['view_adress'])) { ?>
@@ -130,10 +130,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				$image_id = $term_meta['logo_image_id'][0] ?: get_option('ka4wp_partnerlogo_default', '0') ?: 0;
 				$image = wp_get_attachment_image_url($image_id, 'medium');
 ?>
-				<div class="col-xs-<?php print esc_html($grid_xs); ?> col-sm-<?php print esc_html($grid_sm); ?> col-lg-<?php print esc_html($grid_lg); ?> col-xl-<?php print esc_html($grid_xl); // @phpstan-ignore variable.undefined ?> mb-4">
+				<div class="col-xs-<?php print esc_html($ka4wp_grid_xs); ?> col-sm-<?php print esc_html($ka4wp_grid_sm); ?> col-lg-<?php print esc_html($ka4wp_grid_lg); ?> col-xl-<?php print esc_html($ka4wp_grid_xl); // @phpstan-ignore variable.undefined ?> mb-4">
 					<div class="card h-100">
 <?php if(!empty($shortcode_options['view_logo']) && !empty($image)) { ?>
-						<img class="card-img-top" src="<?php print $image; ?>">
+						<img class="card-img-top" src="<?php print esc_url($image); ?>">
 <?php } ?>
 						<div class="ka4wp-card-body">
 <?php if(!empty($term_meta['organisation_holder'][0])) { ?>

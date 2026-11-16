@@ -57,6 +57,7 @@ class Migrator {
 
 		$uploadDir = wp_upload_dir();
 		$wpsf = new \WP_Filesystem_Direct(false);
+		// @phpstan-ignore method.resultUnused (Return value intentionally ignored during migration.)
 		$wpsf->delete(trailingslashit($uploadDir['basedir']) . 'ka4wp_temp', true, 'f');
 	}
 

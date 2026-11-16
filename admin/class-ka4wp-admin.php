@@ -723,12 +723,12 @@ class KA4WP_Admin {
 		
 		$titles = [];
 		foreach ($accounts as $account) {
-			$titles[] = esc_html($account['title'] ?: '#' . $account['id']);
+			$titles[] = $account['title'] ?: '#' . $account['id'];
 		}
 		
 		$dismissUrl = wp_nonce_url(add_query_arg('ka4wp_dismiss_migration', '1'), 'ka4wp_dismiss_migration');
 		
-		echo '<div class="notice notice-warning"><p>' . esc_html__('Kultur-API for WordPress now supports one account per CRM. The following legacy API entries use a different API key and were not migrated:', 'kultur-api-for-wp') . ' <strong>' . implode(', ', $titles) . '</strong> <a href="' . esc_url($dismissUrl) . '">' . esc_html__('Dismiss', 'kultur-api-for-wp') . '</a></p></div>';
+		echo '<div class="notice notice-warning"><p>' . esc_html__('Kultur-API for WordPress now supports one account per CRM. The following legacy API entries use a different API key and were not migrated:', 'kultur-api-for-wp') . ' <strong>' . esc_html(implode(', ', $titles)) . '</strong> <a href="' . esc_url($dismissUrl) . '">' . esc_html__('Dismiss', 'kultur-api-for-wp') . '</a></p></div>';
 	}
 	
 	/**
