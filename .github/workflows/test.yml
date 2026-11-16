@@ -101,7 +101,8 @@ jobs:
       - name: Run plugin check
         uses: wordpress/plugin-check-action@v1.1.5
         with:
-          build-dir: './tmp-build/kultur-api-for-wp'
+          build-dir: './tmp-build/Kultur-API-for-WP'
+          slug: 'kultur-api-for-wp'
       - name: Upload plugin artifact
         uses: actions/upload-artifact@v7
         with:
