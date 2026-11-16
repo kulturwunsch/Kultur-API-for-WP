@@ -88,12 +88,14 @@ jobs:
         with:
             php-version: latest
             coverage: none
-            tools: wp-cli
-      - name: Install latest version of dist-archive-command
-        run: wp package install wp-cli/dist-archive-command:3.1.0
+            tools: composer
+      - name: Install build dependencies
+        env:
+          COMPOSER_HOME: ${{ runner.temp }}/wp-cli-composer
+        run: env -u GITHUB_TOKEN -u COMPOSER_AUTH composer install --no-interaction --prefer-dist
       - name: Build plugin
         run: |
-          wp dist-archive . ./kultur-api-for-wp.zip
+          vendor/bin/wp dist-archive . ./kultur-api-for-wp.zip
           mkdir tmp-build
           unzip kultur-api-for-wp.zip -d tmp-build
       - name: Run plugin check
