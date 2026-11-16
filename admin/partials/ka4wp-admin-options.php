@@ -15,22 +15,17 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 	//Get the active tab from the $_GET param
 	$default_tab = null;
-	$tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : $default_tab;
+	$tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : $default_tab;
 
-if(!class_exists('WPCF7_ContactForm')){
 ?>
-<div id="ka4wp_admin" class="ka4wp_wrap">
-    <p><?php esc_html_e( 'To send data to external servers, Kultur-API integrations requires CONTACT FORM 7 Plugin to be installed and active.', 'kultur-api-for-wp' ); ?></p>
-</div>
-<?php } ?>
 <div class="wrap">
 	<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 	<?php settings_errors('ka4wp_settings'); ?>
 	<nav class="nav-tab-wrapper">
-		<a href="?post_type=ka4wp&page=ka4wp_settings" class="nav-tab <?php if($tab===null):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Default', 'kultur-api-for-wp' ); ?></a>
-		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=integrations" class="nav-tab <?php if($tab==='integrations'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Integrations', 'kultur-api-for-wp' ); ?></a>
-		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=logging" class="nav-tab <?php if($tab==='logging'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Logging', 'kultur-api-for-wp' ); ?></a>
-		<a href="?post_type=ka4wp&page=ka4wp_settings&tab=miscellaneous" class="nav-tab <?php if($tab==='miscellaneous'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Miscellaneous', 'kultur-api-for-wp' ); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=ka4wp_settings')); ?>" class="nav-tab <?php if($tab===null):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Default', 'kultur-api-for-wp' ); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=ka4wp_settings&tab=integrations')); ?>" class="nav-tab <?php if($tab==='integrations'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Integrations', 'kultur-api-for-wp' ); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=ka4wp_settings&tab=logging')); ?>" class="nav-tab <?php if($tab==='logging'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Logging', 'kultur-api-for-wp' ); ?></a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=ka4wp_settings&tab=miscellaneous')); ?>" class="nav-tab <?php if($tab==='miscellaneous'):?>nav-tab-active<?php endif; ?>"><?php esc_html_e('Miscellaneous', 'kultur-api-for-wp' ); ?></a>
     </nav>
 
 	<form action="options.php" method="post">

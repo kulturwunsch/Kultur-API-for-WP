@@ -2,6 +2,7 @@
 /.github
 /.git
 /node_modules
+/vendor
 /tests
 
 .distignore
@@ -12,4 +13,5 @@ DOCKER_ENV
 docker_tag
 output.log
 composer.json
+composer.lock
 README.md

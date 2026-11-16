@@ -38,16 +38,17 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
             require ABSPATH.'/wp-admin/includes/class-wp-filesystem-base.php';
             require ABSPATH.'/wp-admin/includes/class-wp-filesystem-direct.php';
         }
-		$uploadDir = wp_upload_dir();
+		$ka4wp_uploadDir = wp_upload_dir();
 		
-		$wpsf = new WP_Filesystem_Direct(false);
-		$wpsf->delete(trailingslashit($uploadDir['basedir']).'ka4wp_temp', true, 'd');
+		$ka4wp_wpsf = new WP_Filesystem_Direct(false);
+		// @phpstan-ignore method.resultUnused (Return value intentionally ignored during uninstall.)
+		$ka4wp_wpsf->delete(trailingslashit($ka4wp_uploadDir['basedir']).'ka4wp_temp', true, 'd');
 		
 		//define settings
-		$settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default');
+		$ka4wp_settingOptions = array('ka4wp_plugin_version', 'ka4wp_installation_id', 'ka4wp_api_receive_eventcategories', 'ka4wp_api_receive_eventcategories_recurrence', 'ka4wp_api_keep_deleted_eventcategories', 'ka4wp_api_receive_impartingareas', 'ka4wp_api_receive_impartingareas_recurrence', 'ka4wp_api_keep_deleted_impartingareas', 'ka4wp_api_receive_partners', 'ka4wp_api_receive_partners_recurrence', 'ka4wp_api_keep_deleted_partners', 'ka4wp_prevent_deletion', 'ka4wp_partnerlogo_default', 'ka4wp_crm_type', 'ka4wp_wunsch_events_api_key', 'ka4wp_migration_extra_accounts', 'ka4wp_legacy_cf7_forms');
 
 		// Clear up our settings
-		foreach ($settingOptions as $settingName) {
+		foreach ($ka4wp_settingOptions as $settingName) {
 			delete_option($settingName);
 			delete_site_option($settingName);
 		}
@@ -58,30 +59,30 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 		//delete taxonomy terms
 		register_taxonomy('eventcategories', 'ka4wp');
-		$terms = get_terms(['taxonomy' => 'eventcategories', 'hide_empty' => false]);
-		if(!empty($terms))
+		$ka4wp_terms = get_terms(['taxonomy' => 'eventcategories', 'hide_empty' => false]);
+		if(!empty($ka4wp_terms))
 		{
-			foreach($terms as $category)
+			foreach($ka4wp_terms as $category)
 			{
 				wp_delete_term($category->term_id, 'eventcategories');
 			}
 		}
 		
 		register_taxonomy('impartingareas', 'ka4wp');
-		$terms = get_terms(['taxonomy' => 'impartingareas', 'hide_empty' => false]);
-		if(!empty($terms))
+		$ka4wp_terms = get_terms(['taxonomy' => 'impartingareas', 'hide_empty' => false]);
+		if(!empty($ka4wp_terms))
 		{
-			foreach($terms as $category)
+			foreach($ka4wp_terms as $category)
 			{
 				wp_delete_term($category->term_id, 'impartingareas');
 			}
 		}
 		
 		register_taxonomy('partners', 'ka4wp');
-		$terms = get_terms(['taxonomy' => 'partners', 'hide_empty' => false]);
-		if(!empty($terms))
+		$ka4wp_terms = get_terms(['taxonomy' => 'partners', 'hide_empty' => false]);
+		if(!empty($ka4wp_terms))
 		{
-			foreach($terms as $category)
+			foreach($ka4wp_terms as $category)
 			{
 				wp_delete_term($category->term_id, 'partners');
 			}
@@ -106,8 +107,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		}
 		
 		//delete all custom posts
-		$pluginPosts = get_posts( array( 'post_type' => 'ka4wp', 'numberposts' => -1) );
-		foreach ( $pluginPosts as $singlePost ) {
+		$ka4wp_pluginPosts = get_posts( array( 'post_type' => 'ka4wp', 'numberposts' => -1) );
+		foreach ( $ka4wp_pluginPosts as $singlePost ) {
 			wp_delete_post( $singlePost->ID, true); // Set to False if you want to send them to Trash.
 		}
 		

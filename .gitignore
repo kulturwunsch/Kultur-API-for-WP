@@ -21,14 +21,7 @@ Thumbs.db
 nbproject
 *.sublime-project
 *.sublime-workspace
-
-# Dreamweaver added files
-_notes
-dwsync.xml
-
-# Komodo
-*.komodoproject
-.komodotools
+.vscode
 
 # Folders to ignore
 .hg
@@ -37,3 +30,4 @@ dwsync.xml
 intermediate
 .idea
 cache
+/vendor
